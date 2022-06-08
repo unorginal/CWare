@@ -13,13 +13,10 @@ class CLegitBot : public CSingleton<CLegitBot>
 public:
 	// Get
 	void Run(CUserCmd* pCmd, CBaseEntity* pLocal, bool& bSendPacket);
-	CBaseEntity* FindClosestPlayer(CBaseEntity* pLocal);
-private:
-	CBaseEntity* FindClosestPlayerViaFov(CUserCmd* pCmd, CBaseEntity* pLocal);
 private:
 	// Main
 	/* aimbot, smooth, etc */
-	// test comment
+
 	// Check
 	/* is entity valid */
 };

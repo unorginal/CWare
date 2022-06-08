@@ -179,16 +179,6 @@ namespace F
 	inline ImFont* Verdana;
 	// 2	visuals		40		lighthinting
 	inline ImFont* SmallestPixel;
-	// Pogger!
-	inline ImFont* Arial;
-	inline ImFont* ArialBold;
-	inline ImFont* ArialLarge;
-
-	inline ImFont* SegoeUI;
-	inline ImFont* Tahoma;
-	// balls
-	inline ImFont* Father;
-	inline ImFont* FatherBold;
 	// 3	icons		40		lighthinting
 	inline ImFont* Icons;
 }
@@ -206,7 +196,6 @@ namespace ImGui
 	bool Combo(const char* szLabel, std::vector<int>& vecValues, int nIndex, const char* szItemsSeparatedByZeros, int nHeightInItems = -1);
 	bool Checkbox(const char* szLabel, std::vector<bool>& vecValues, int nIndex);
 	bool SliderFloat(const char* szLabel, std::vector<float>& vecValues, int nIndex, float flMin, float flMax, const char* szFormat = "%.3f", float flPower = 1.0f);
-	bool SliderScalar(const char* label, ImGuiDataType data_type, void* p_data, const void* p_min, const void* p_max, const char* format, bool minimum_damage, float power);
 	bool SliderInt(const char* szLabel, std::vector<int>& vecValues, int nIndex, int iMin, int iMax, const char* szFormat = "%d");
 	bool ColorEdit3(const char* szLabel, Color* pColor, ImGuiColorEditFlags flags);
 	bool ColorEdit4(const char* szLabel, Color* pColor, ImGuiColorEditFlags flags);

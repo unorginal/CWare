@@ -34,7 +34,7 @@ public:
 		}
 
 		int						nNextFreeSlot;					// 0x00
-		CBaseEntity* pEntity;						// 0x04
+		CBaseEntity*			pEntity;						// 0x04
 		std::array<float, 4U>	arrColor;						// 0x08
 		bool					bAlphaCappedByRenderAlpha;		// 0x18
 		std::byte				pad0[0x3];						// 0x19 - pack 1 bool as 4 bytes
