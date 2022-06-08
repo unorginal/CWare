@@ -48,7 +48,7 @@ namespace L
 	/*
 	 * @section: values
 	 */
-	 // console write stream
+	// console write stream
 	inline FILE* pStream;
 	// current color of console text
 	inline std::uint16_t wConsoleColor = FOREGROUND_WHITE;
@@ -58,7 +58,7 @@ namespace L
 	/*
 	 * @section: get
 	 */
-	 // attach console to current window with write permission and given title
+	// attach console to current window with write permission and given title
 	bool Attach(const char* szConsoleTitle);
 	// close write streams and detach console from current window
 	void Detach();
@@ -69,7 +69,7 @@ namespace L
 		// format time
 		const std::string szTime = std::vformat(XorStr("[{:%d-%m-%Y %X}] "), std::make_format_args(std::chrono::system_clock::now()));
 
-#ifdef DEBUG_CONSOLE
+		#ifdef DEBUG_CONSOLE
 		// print to console
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSE_GREEN);
 		std::cout << szTime;
@@ -78,17 +78,17 @@ namespace L
 			std::cout << std::vformat(szText, std::make_format_args(argList...)) << std::endl;
 		else
 			std::cout << szText << std::endl;
-#else
+		#else
 		// print to file
 		if (ofsFile.is_open())
 			ofsFile << szTime << szText << std::endl;
-#endif
+		#endif
 	}
 
 	/*
 	 * @section: options stack
 	 */
-	 // set given color to console
+	// set given color to console
 	inline void PushConsoleColor(const std::uint16_t wColor)
 	{
 		wConsoleColor = wColor;

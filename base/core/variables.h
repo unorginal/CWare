@@ -333,7 +333,7 @@ struct Variables_t
 	C_ADD_VARIABLE_VECTOR(bool, REMOVAL_MAX, vecWorldRemovals, false);
 
 	// on-screen
-	C_ADD_VARIABLE(bool, bScreen, true);
+	C_ADD_VARIABLE(bool, bScreen, false);
 	C_ADD_VARIABLE(float, flScreenCameraFOV, 0.f);
 	C_ADD_VARIABLE(float, flScreenViewModelFOV, 0.f);
 	C_ADD_VARIABLE(float, flScopedFov, 90.f);

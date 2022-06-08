@@ -65,7 +65,7 @@ public:
 		VirtualProtect(pBaseAddress, uLength, dwOldFlags, &dwOldFlags);
 	}
 private:
-	void* pBaseAddress;
+	void*			pBaseAddress;
 	std::size_t		uLength;
 	DWORD			dwOldFlags;
 };
@@ -79,9 +79,9 @@ namespace MEM
 	/*
 	 * @section: get
 	 */
-	 /// ida style pattern byte comparison in specific module
-	 /// @param szModuleName : module name where search for pattern
-	 /// @param szPattern : ida style pattern, e.g. "55 8B 40 ? 30", wildcard can be either '?' or "??", blank delimiters are ignored
+	/// ida style pattern byte comparison in specific module
+	/// @param szModuleName : module name where search for pattern
+	/// @param szPattern : ida style pattern, e.g. "55 8B 40 ? 30", wildcard can be either '?' or "??", blank delimiters are ignored
 	std::uintptr_t FindPattern(const std::string_view szModuleName, const std::string_view szPattern);
 	/// ida style pattern byte comparison in specific region
 	/// @param szPattern : ida style pattern, e.g. "55 8B 40 ? 30", wildcard can be either '?' or "??", blank delimiters are ignored
@@ -136,6 +136,6 @@ namespace MEM
 	/*
 	 * @section: check
 	 */
-	 // checks do we can we read/readwrite given memory region
+	// checks do we can we read/readwrite given memory region
 	bool IsValidCodePtr(const void* pPointer);
 }

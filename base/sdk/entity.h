@@ -5,8 +5,7 @@
 #include <vector>
 // used: std::optional
 #include <optional>
-// used: crefcount
-#include "interfaces/irefcount.h"
+
 // used: animation state
 #include "animations.h"
 // used: baseentity lifestate
@@ -19,6 +18,8 @@
 #include "../core/netvar.h"
 // used: basehandle
 #include "interfaces/icliententitylist.h"
+// used: crefcount
+#include "interfaces/irefcount.h"
 // used: model
 #include "interfaces/ivmodelinfo.h"
 
@@ -704,7 +705,7 @@ public:
 	std::optional<Vector>	GetHitboxPosition(const int iHitbox);
 	std::optional<Vector>	GetHitGroupPosition(const int iHitGroup);
 	void					ModifyEyePosition(const CCSGOPlayerAnimState* pAnimState, Vector* vecPosition) const;
-	int						PostThink();
+	void					PostThink();
 	bool					IsEnemy(CBaseEntity* pEntity);
 	bool					IsTargetingLocal(CBaseEntity* pLocal);
 	bool					CanShoot(CWeaponCSBase* pBaseWeapon);

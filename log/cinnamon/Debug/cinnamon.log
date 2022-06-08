@@ -39,11 +39,11 @@
   math.cpp
   memory.cpp
 C:\Users\octav\Desktop\CWare\base\features\lagcompensation.cpp(67,27): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\lagcompensation.cpp(424,19): warning C4101: 'backup_layers': unreferenced local variable
 C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(72,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(73,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(182,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(183,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\lagcompensation.cpp(424,19): warning C4101: 'backup_layers': unreferenced local variable
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(81,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(82,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(332,21): warning C4018: '<': signed/unsigned mismatch
@@ -53,17 +53,17 @@ C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(510,55): warning C4244: '
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(512,52): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(626,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(628,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,85): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,79): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,33): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(288,23): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(291,24): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(673,83): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(674,82): warning C4305: 'argument': truncation from 'double' to 'float'
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1046,23): warning C4018: '<': signed/unsigned mismatch
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1053,22): warning C4018: '<': signed/unsigned mismatch
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1086,23): warning C4018: '<': signed/unsigned mismatch
 C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1093,22): warning C4018: '<': signed/unsigned mismatch
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,85): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,79): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,33): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(288,23): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(291,24): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
   buffer.c
   hde32.c
   hde64.c

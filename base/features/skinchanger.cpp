@@ -21,3 +21,4 @@ void CSkinChanger::Event(IGameEvent* pEvent, const FNV1A_t uNameHash)
 	if (!I::Engine->IsInGame())
 		return;
 }
+

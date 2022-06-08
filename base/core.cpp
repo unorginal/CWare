@@ -37,14 +37,14 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 
 #ifdef DEBUG_CONSOLE
 		// console logging
-		if (!L::Attach(XorStr("qo0's base developer-mode")))
+		if (!L::Attach(XorStr("catware's developer-mode")))
 			throw std::runtime_error(XorStr("failed to attach console"));
 
 		L::Print(XorStr("console opened"));
 #else
 		// file logging
 		// @note: use std::ios::app instead std::ios::trunc to not clear every time
-		L::ofsFile.open(C::GetWorkingPath().append(XorStr("qo0base.log")), std::ios::out | std::ios::trunc);
+		L::ofsFile.open(C::GetWorkingPath().append(XorStr("catware.log")), std::ios::out | std::ios::trunc);
 #endif
 
 		// capture interfaces from game/steam (not always) modules
@@ -72,6 +72,7 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 			L::Print(XorStr("#usuckplayboyshawttie"));
 			//throw std::runtime_error(XorStr("failed to initialize netvars"));
 			L::Print(XorStr("#weffewwfe"));
+		L::Print(XorStr("#netvardone"));
 		L::Print(XorStr("found [{:d}] props in [{:d}] tables"), CNetvarManager::Get().iStoredProps, CNetvarManager::Get().iStoredTables);
 
 		// export completed mathematics functions from game/steam (not always) modules
@@ -87,12 +88,9 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		L::Print(XorStr("#input"));
 		L::Print(XorStr("inputsystem setup complete"));
 
-#if 0
 		// start tracking entities
-		U::EntityListener.Setup();
-		L::Print(XorStr("entity listener initialized"));
-#endif
-
+		//U::EntityListener.Setup();
+		//L::Print(XorStr("entity listener initialized"));
 		// start tracking specified events from vector
 		// @note: all events list: https://wiki.alliedmods.net/Counter-Strike:_Global_Offensive_Events
 		U::EventListener.Setup({ XorStr("player_hurt"), XorStr("round_prestart"), XorStr("round_freeze_end") });
@@ -107,7 +105,7 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		// add our functionality in networkable functions
 		if (!P::Setup())
 			throw std::runtime_error(XorStr("failed initialize proxies"));
-
+		L::Print(XorStr("#justproxied"));
 		L::Print(XorStr("proxies applied"));
 		L::Print(XorStr("#configie"));
 		// setup values to save/load cheat variables in/from files and load default configuration
@@ -120,7 +118,7 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		}
 		else
 			L::Print(XorStr("default config loaded"));
-
+		L::Print(XorStr("#cfgloadedmen"));
 		// show message about successful load in logs and in game console
 		L::PushConsoleColor(FOREGROUND_MAGENTA);
 		L::Print(XorStr("qo0 base successfully loaded"));

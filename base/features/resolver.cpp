@@ -106,7 +106,7 @@ void CResolver::Run(CBaseEntity* pEntity) {
 	const float playback_rate = pEntity->GetAnimationLayer(ANIMATION_LAYER_MOVEMENT_MOVE)->flPlaybackRate * 1000000.0f;
 	const auto animation_lean = pEntity->GetAnimationLayer(ANIMATION_LAYER_LEAN);
 	const float velocity = std::max< float >(pEntity->GetVelocity().Length2D(), 1);
-	const float ground_speed = 1.f + anim_state->flGroundSpeed();
+	const float ground_speed = 1.f; //+ anim_state->flGroundSpeed();
 	const float calculated_playback_rate = playback_rate / velocity * ground_speed;
 	const auto side = calculated_playback_rate > 60.f;
 	int max_delta = INT_MAX;

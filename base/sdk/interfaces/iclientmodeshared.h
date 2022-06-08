@@ -72,10 +72,10 @@ class IClientModeShared
 {
 public:
 	std::byte	pad0[0x1B];
-	void* pViewport;
-	IHudChat* pChatElement;
+	void*		pViewport;
+	IHudChat*	pChatElement;
 	HCursor		hCursorNone;
-	void* pWeaponSelection;
+	void*		pWeaponSelection;
 	int			nRootSize[2];
 };
 
@@ -98,13 +98,12 @@ class CEventInfo
 public:
 	short				nClassID;		// 0x00 // 0 implies not in use
 	float				flFireDelay;	// 0x02 // if non-zero, the delay time when the event should be fired ( fixed up on the client )
-	const void* pSendTable;		// 0x06
-	const CBaseClient* pClientClass;	// 0x0A // clienclass pointer
-	void* pData;			// 0x0E // raw event data
+	const void*			pSendTable;		// 0x06
+	const CBaseClient*	pClientClass;	// 0x0A // clienclass pointer
+	void*				pData;			// 0x0E // raw event data
 	std::intptr_t		iPackedBits;	// 0x12
 	int					iFlags;			// 0x16
 	std::byte			pad0[0x16];		// 0x1A
-	CEventInfo* next;
 }; // Size: 0x30
 
 class INetChannel;
@@ -112,7 +111,7 @@ class IClientState
 {
 public:
 	std::byte		pad0[0x9C];				// 0x0000
-	INetChannel* pNetChannel;			// 0x009C
+	INetChannel*	pNetChannel;			// 0x009C
 	int				iChallengeNr;			// 0x00A0
 	std::byte		pad1[0x64];				// 0x00A4
 	int				iSignonState;			// 0x0108
@@ -147,5 +146,5 @@ public:
 	std::byte		pad8[0x50];				// 0x4D40
 	QAngle			angViewPoint;			// 0x4D90
 	std::byte		pad9[0xD0];				// 0x4D9C
-	CEventInfo* pEvents;				// 0x4E6C
+	CEventInfo*		pEvents;				// 0x4E6C
 }; // Size: 0x4E70

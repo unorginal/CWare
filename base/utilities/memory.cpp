@@ -60,7 +60,7 @@ void* MEM::GetModuleBaseHandle(const std::string_view szModuleName)
 
 	if (szModuleName.empty())
 		return pPEB->ImageBaseAddress;
-
+	
 	const std::wstring wszModuleName(szModuleName.begin(), szModuleName.end());
 
 	for (LIST_ENTRY* pListEntry = pPEB->Ldr->InLoadOrderModuleList.Flink; pListEntry != &pPEB->Ldr->InLoadOrderModuleList; pListEntry = pListEntry->Flink)
@@ -99,7 +99,7 @@ void* MEM::GetExportAddress(const void* pModuleBase, const std::string_view szPr
 	// perform binary search
 	std::uintptr_t uRight = pExportDirectory->NumberOfNames;
 	std::uintptr_t uLeft = 0;
-
+	
 	while (uRight != uLeft)
 	{
 		const std::uintptr_t uMiddle = uLeft + ((uRight - uLeft) >> 1U);
@@ -288,7 +288,7 @@ std::vector<std::optional<std::uint8_t>> MEM::PatternToBytes(const std::string_v
 		{
 			// convert current 4 bits to hex
 			std::uint8_t uByte = static_cast<std::uint8_t>(((*itBegin >= 'A' ? (((*itBegin - 'A') & (~('a' ^ 'A'))) + 10) : (*itBegin <= '9' ? *itBegin - '0' : 0x0)) | 0xF0) << 4);
-
+			
 			// convert next 4 bits to hex and assign to byte
 			if (++itBegin; *itBegin != ' ')
 				uByte |= static_cast<std::uint8_t>(*itBegin >= 'A' ? (((*itBegin - 'A') & (~('a' ^ 'A'))) + 10) : (*itBegin <= '9' ? *itBegin - '0' : 0x0));

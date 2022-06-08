@@ -9,6 +9,7 @@
 #include "sdk/datatypes/usercmd.h"
 // used: baseentity
 #include "sdk/entity.h"
+
 /*
  * GLOBALS
  * globally defined values
@@ -16,6 +17,7 @@
  */
 namespace G
 {
+	// current module
 	inline HMODULE			hDll = nullptr;
 	// last localplayer pointer, being valid only after 'CreateMove()' call!
 	inline CBaseEntity* pLocal = nullptr;

@@ -28,10 +28,10 @@ enum EClientFrameStage : int
 
 enum ERenderViewInfo : int
 {
-	RENDERVIEW_UNSPECIFIED =				0,
-	RENDERVIEW_DRAWVIEWMODEL =				(1 << 0),
-	RENDERVIEW_DRAWHUD =					(1 << 1),
-	RENDERVIEW_SUPPRESSMONITORRENDERING =	(1 << 2)
+	RENDERVIEW_UNSPECIFIED = 0,
+	RENDERVIEW_DRAWVIEWMODEL = (1 << 0),
+	RENDERVIEW_DRAWHUD = (1 << 1),
+	RENDERVIEW_SUPPRESSMONITORRENDERING = (1 << 2)
 };
 #pragma endregion
 
@@ -118,6 +118,7 @@ public:
 	{
 		MEM::CallVFunc<void>(this, 18, std::ref(angView));
 	}
+
 	void SetViewAngles(QAngle& angView)
 	{
 		MEM::CallVFunc<void>(this, 19, std::ref(angView));

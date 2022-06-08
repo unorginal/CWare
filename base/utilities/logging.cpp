@@ -36,3 +36,4 @@ void L::Detach()
 		// close console window
 		PostMessageW(hConsoleWnd, WM_CLOSE, 0U, 0L);
 }
+

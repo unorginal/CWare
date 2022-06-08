@@ -341,3 +341,4 @@ float CAntiAim::GetMaxDesyncDelta(CCSGOPlayerAnimState* pAnimState)
 	float flMaxYawModifier = flYawModifier * pAnimState->flMaxBodyYaw;
 	return flMaxYawModifier;
 }
+

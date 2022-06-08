@@ -23,6 +23,7 @@ int CBaseEntity::GetSequenceActivity(int iSequence)
 	using GetSequenceActivityFn = int(__fastcall*)(void*, void*, int);
 	static auto oGetSequenceActivity = reinterpret_cast<GetSequenceActivityFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 53 8B 5D 08 56 8B F1 83"))); // @xref: "Need to handle the activity %d\n"
 	assert(oGetSequenceActivity != nullptr);
+
 	return oGetSequenceActivity(this, pStudioHdr, iSequence);
 }
 
@@ -175,80 +176,19 @@ void CBaseEntity::ModifyEyePosition(const CCSGOPlayerAnimState* pAnimState, Vect
 	}
 }
 
-bool CBaseEntity::IsBreakable()
+void CBaseEntity::PostThink()
 {
-	// @ida isbreakableentity: client.dll @ 55 8B EC 51 56 8B F1 85 F6 74 68
-
-	const int iHealth = this->GetHealth();
-
-	// first check to see if it's already broken
-	if (iHealth < 0 && this->IsMaxHealth() > 0)
-		return true;
-
-	if (this->GetTakeDamage() != DAMAGE_YES)
-	{
-		const EClassIndex nClassIndex = this->GetClientClass()->nClassID;
-
-		// force pass cfuncbrush
-		if (nClassIndex != EClassIndex::CFuncBrush)
-			return false;
-	}
-
-	if (const int nCollisionGroup = this->GetCollisionGroup(); nCollisionGroup != COLLISION_GROUP_PUSHAWAY && nCollisionGroup != COLLISION_GROUP_BREAKABLE_GLASS && nCollisionGroup != COLLISION_GROUP_NONE)
-		return false;
-
-	if (iHealth > 200)
-		return false;
-
-	if (IMultiplayerPhysics* pPhysicsInterface = dynamic_cast<IMultiplayerPhysics*>(this); pPhysicsInterface != nullptr)
-	{
-		if (pPhysicsInterface->GetMultiplayerPhysicsMode() != PHYSICS_MULTIPLAYER_SOLID)
-			return false;
-	}
-	else
-	{
-		if (const char* szClassName = this->GetClassname(); !strcmp(szClassName, XorStr("func_breakable")) || !strcmp(szClassName, XorStr("func_breakable_surf")))
-		{
-			if (!strcmp(szClassName, XorStr("func_breakable_surf")))
-			{
-				CBreakableSurface* pSurface = static_cast<CBreakableSurface*>(this);
-
-				// don't try to break it if it has already been broken
-				if (pSurface->IsBroken())
-					return false;
-			}
-		}
-		else if (this->PhysicsSolidMaskForEntity() & CONTENTS_PLAYERCLIP)
-		{
-			// hostages and players use CONTENTS_PLAYERCLIP, so we can use it to ignore them
-			return false;
-		}
-	}
-
-	if (IBreakableWithPropData* pBreakableInterface = dynamic_cast<IBreakableWithPropData*>(this); pBreakableInterface != nullptr)
-	{
-		// bullets don't damage it - ignore
-		if (pBreakableInterface->GetDmgModBullet() <= 0.0f)
-			return false;
-	}
-
-	return true;
-}
-
-
-int CBaseEntity::PostThink()
-{
-	// @ida postthink: 56 8B 35 ? ? ? ? 57 8B F9 8B CE 8B 06 FF 90 ? ? ? ? 8B 07
+	// @ida postthink: client.dll 56 8B 35 ? ? ? ? 57 8B F9 8B CE 8B 06 FF 90 ? ? ? ? 8B 07
 
 	using PostThinkVPhysicsFn = bool(__thiscall*)(CBaseEntity*);
 	static auto oPostThinkVPhysics = reinterpret_cast<PostThinkVPhysicsFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 83 E4 F8 81 EC ? ? ? ? 53 8B D9 56 57 83 BB")));
 	assert(oPostThinkVPhysics != nullptr);
+
 	using SimulatePlayerSimulatedEntitiesFn = void(__thiscall*)(CBaseEntity*);
 	static auto oSimulatePlayerSimulatedEntities = reinterpret_cast<SimulatePlayerSimulatedEntitiesFn>(MEM::FindPattern(CLIENT_DLL, XorStr("56 8B F1 57 8B BE ? ? ? ? 83 EF 01 78 74")));
 	assert(oSimulatePlayerSimulatedEntities != nullptr);
 
-	// begin lock
-	MEM::CallVFunc<void>(I::MDLCache, 33);
+	I::MDLCache->BeginLock();
 
 	if (this->IsAlive())
 	{
@@ -265,8 +205,8 @@ int CBaseEntity::PostThink()
 	}
 
 	oSimulatePlayerSimulatedEntities(this);
-	// end lock
-	return MEM::CallVFunc<int>(I::MDLCache, 34);
+
+	I::MDLCache->EndLock();
 }
 
 bool CBaseEntity::IsEnemy(CBaseEntity* pEntity)
@@ -358,5 +298,65 @@ bool CBaseEntity::IsVisible(CBaseEntity* pEntity, const Vector& vecEnd, bool bSm
 		return true;
 
 	return false;
+}
+
+bool CBaseEntity::IsBreakable()
+{
+	// @ida isbreakableentity: client.dll @ 55 8B EC 51 56 8B F1 85 F6 74 68
+
+	const int iHealth = this->GetHealth();
+
+	// first check to see if it's already broken
+	if (iHealth < 0 && this->IsMaxHealth() > 0)
+		return true;
+
+	if (this->GetTakeDamage() != DAMAGE_YES)
+	{
+		const EClassIndex nClassIndex = this->GetClientClass()->nClassID;
+
+		// force pass cfuncbrush
+		if (nClassIndex != EClassIndex::CFuncBrush)
+			return false;
+	}
+
+	if (const int nCollisionGroup = this->GetCollisionGroup(); nCollisionGroup != COLLISION_GROUP_PUSHAWAY && nCollisionGroup != COLLISION_GROUP_BREAKABLE_GLASS && nCollisionGroup != COLLISION_GROUP_NONE)
+		return false;
+
+	if (iHealth > 200)
+		return false;
+
+	if (IMultiplayerPhysics* pPhysicsInterface = dynamic_cast<IMultiplayerPhysics*>(this); pPhysicsInterface != nullptr)
+	{
+		if (pPhysicsInterface->GetMultiplayerPhysicsMode() != PHYSICS_MULTIPLAYER_SOLID)
+			return false;
+	}
+	else
+	{
+		if (const char* szClassName = this->GetClassname(); !strcmp(szClassName, XorStr("func_breakable")) || !strcmp(szClassName, XorStr("func_breakable_surf")))
+		{
+			if (!strcmp(szClassName, XorStr("func_breakable_surf")))
+			{
+				CBreakableSurface* pSurface = static_cast<CBreakableSurface*>(this);
+
+				// don't try to break it if it has already been broken
+				if (pSurface->IsBroken())
+					return false;
+			}
+		}
+		else if (this->PhysicsSolidMaskForEntity() & CONTENTS_PLAYERCLIP)
+		{
+			// hostages and players use CONTENTS_PLAYERCLIP, so we can use it to ignore them
+			return false;
+		}
+	}
+
+	if (IBreakableWithPropData* pBreakableInterface = dynamic_cast<IBreakableWithPropData*>(this); pBreakableInterface != nullptr)
+	{
+		// bullets don't damage it - ignore
+		if (pBreakableInterface->GetDmgModBullet() <= 0.0f)
+			return false;
+	}
+
+	return true;
 }
 #pragma endregion

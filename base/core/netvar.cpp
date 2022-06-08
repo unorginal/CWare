@@ -4,7 +4,6 @@
 #include "config.h"
 // used: client interface
 #include "interfaces.h"
-#include "../utilities/logging.h"
 
 bool CNetvarManager::Setup(const std::string_view szDumpFileName)
 {
@@ -14,56 +13,53 @@ bool CNetvarManager::Setup(const std::string_view szDumpFileName)
 	iStoredTables = 0;
 
 	// format time
-	L::Print(XorStr("#time"));
 	const std::string szTime = std::vformat(XorStr("[{:%d-%m-%Y %X}] "), std::make_format_args(std::chrono::system_clock::now()));
 
 #ifdef _DEBUG
-	//L::Print(XorStr("#weopen"));
 	// open our dump file to write in (here is not exception handle because dump is not critical)
-	//fsDumpFile.open(C::GetWorkingPath().append(szDumpFileName), std::ios::out | std::ios::trunc);
+	fsDumpFile.open(C::GetWorkingPath().append(szDumpFileName), std::ios::out | std::ios::trunc);
 
-	//if (fsDumpFile.good())
+	if (fsDumpFile.good())
 		// write current date, time and info
-		//fsDumpFile << szTime << XorStr("catware | netvars dump\n\n");
+		fsDumpFile << szTime << XorStr("qo0 | netvars dump\n\n");
 #endif
-	L::Print(XorStr("#forloop"));
+
 	for (auto pClass = I::Client->GetAllClasses(); pClass != nullptr; pClass = pClass->pNext)
 	{
 		if (pClass->pRecvTable == nullptr)
 			continue;
-		L::Print(XorStr("#westore"));
+
 		StoreProps(pClass->szNetworkName, pClass->pRecvTable, 0U, 0);
 	}
 
 #ifdef _DEBUG
-	//L::Print(XorStr("#closethatshit"));
 	// close dump file
-	//fsDumpFile.close();
+	fsDumpFile.close();
 #endif
-	L::Print(XorStr("#fffff"));
+
 	return !mapProps.empty();
 }
 
 void CNetvarManager::StoreProps(const char* szClassName, RecvTable_t* pRecvTable, const std::uintptr_t uOffset, const int iDepth)
 {
 #ifdef _DEBUG
-	//std::string szDepth = { };
+	std::string szDepth = { };
 
-	//for (int i = 0; i < iDepth; i++)
-		//szDepth.append("\t");
+	for (int i = 0; i < iDepth; i++)
+		szDepth.append("\t");
 
-	//if (fsDumpFile.good())
-		//fsDumpFile << std::format("{0}[{1}]\n", szDepth, pRecvTable->szNetTableName);
+	if (fsDumpFile.good())
+		fsDumpFile << std::format("{0}[{1}]\n", szDepth, pRecvTable->szNetTableName);
 #endif
-	L::Print(XorStr("#bhash"));
+
 	const FNV1A_t uClassHash = FNV1A::Hash(szClassName);
 	const FNV1A_t uDelimiterHash = FNV1A::Hash("->", uClassHash);
 	const FNV1A_t uBaseClassHash = FNV1A::Hash("baseclass", uDelimiterHash);
-	L::Print(XorStr("#hash"));
+
 	for (int i = 0; i < pRecvTable->nProps; ++i)
 	{
 		const auto pCurrentProp = &pRecvTable->pProps[i];
-		L::Print(XorStr("#forloopie"));
+
 		// base tables filter
 		if (pCurrentProp == nullptr || isdigit(pCurrentProp->szVarName[0]))
 			continue;
@@ -74,7 +70,7 @@ void CNetvarManager::StoreProps(const char* szClassName, RecvTable_t* pRecvTable
 		// skip baseclass
 		if (uTotalHash == uBaseClassHash)
 			continue;
-		L::Print(XorStr("#ctable"));
+
 		// has child table
 		if (const auto pChildTable = pCurrentProp->pDataTable; pChildTable != nullptr &&
 			// has props
@@ -87,24 +83,23 @@ void CNetvarManager::StoreProps(const char* szClassName, RecvTable_t* pRecvTable
 			StoreProps(szClassName, pChildTable, static_cast<std::uintptr_t>(pCurrentProp->iOffset) + uOffset, iDepth + 1);
 
 		const std::uintptr_t uTotalOffset = static_cast<std::uintptr_t>(pCurrentProp->iOffset) + uOffset;
-		L::Print(XorStr("#post ctable"));
+
 		// check if we have already grabbed property
 		if (!mapProps[uTotalHash].uOffset)
 		{
 #ifdef _DEBUG
-			//if (fsDumpFile.good())
-				//fsDumpFile << std::format("{0}\t{1} {2} = 0x{3:04X};\n", szDepth, GetPropertyType(pCurrentProp), pCurrentProp->szVarName, uTotalOffset);
+			if (fsDumpFile.good())
+				fsDumpFile << std::format("{0}\t{1} {2} = 0x{3:04X};\n", szDepth, GetPropertyType(pCurrentProp), pCurrentProp->szVarName, uTotalOffset);
 #endif
-			L::Print(XorStr("#writing ctable"));
+
 			// write values to map entry
 			mapProps[uTotalHash] = { pCurrentProp, uTotalOffset };
 
 			// count total stored props
 			iStoredProps++;
 		}
-		L::Print(XorStr("#superpost ctable"));
 	}
-	L::Print(XorStr("#finish"));
+
 	// count total stored tables
 	iStoredTables++;
 }

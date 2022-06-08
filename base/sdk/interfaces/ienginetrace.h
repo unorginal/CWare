@@ -14,11 +14,11 @@
 #pragma region enginetrace_enumerations
 enum EDispSurfFlags : int
 {
-	DISPSURF_FLAG_SURFACE = (1 << 0),
-	DISPSURF_FLAG_WALKABLE = (1 << 1),
-	DISPSURF_FLAG_BUILDABLE = (1 << 2),
-	DISPSURF_FLAG_SURFPROP1 = (1 << 3),
-	DISPSURF_FLAG_SURFPROP2 = (1 << 4)
+	DISPSURF_FLAG_SURFACE =		(1 << 0),
+	DISPSURF_FLAG_WALKABLE =	(1 << 1),
+	DISPSURF_FLAG_BUILDABLE =	(1 << 2),
+	DISPSURF_FLAG_SURFPROP1 =	(1 << 3),
+	DISPSURF_FLAG_SURFPROP2 =	(1 << 4)
 };
 
 enum ETraceType : int
@@ -55,7 +55,7 @@ struct cplane_t
 
 struct csurface_t
 {
-	const char* szName;
+	const char*		szName;
 	short			nSurfaceProps;
 	std::uint16_t	uFlags;
 };
@@ -86,7 +86,7 @@ public:
 	int					iHitGroup;				// 0 == generic, non-zero is specific body part
 	short				sPhysicsBone;			// physics bone hit by trace in studio
 	std::uint16_t		uWorldSurfaceIndex;		// index of the msurface2_t, if applicable
-	CBaseEntity* pHitEntity;				// entity hit by trace
+	CBaseEntity*		pHitEntity;				// entity hit by trace
 	int					iHitbox;				// box hit by trace in studio
 
 	inline bool DidHit() const
@@ -151,7 +151,7 @@ struct Ray_t
 	VectorAligned		vecDelta;
 	VectorAligned		vecStartOffset;
 	VectorAligned		vecExtents;
-	const matrix3x4_t* matWorldAxisTransform;
+	const matrix3x4_t*	matWorldAxisTransform;
 	bool				bIsRay;
 	bool				bIsSwept;
 };
@@ -184,7 +184,6 @@ public:
 			return checkCallback(pHandleEntity, fContentsMask);
 
 		// otherwise skip entity if given
-		// rollraw thinks this is bad ig return pSkip != nullptr ? pHandleEntity != pSkip : true;
 		return pHandleEntity != pSkip;
 	}
 
