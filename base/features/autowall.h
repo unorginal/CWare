@@ -4,7 +4,6 @@
 // used: baseentity, cliententity, baseweapon, weapondata classes
 #include "../sdk/entity.h"
 
-/* autowall objects structure */
 struct FireBulletData_t
 {
 	Vector			vecPosition = { };
@@ -15,11 +14,11 @@ struct FireBulletData_t
 };
 
 // @credits: outlassn
-class CAutoWall : public CSingleton<CAutoWall>
+class CAutoWall
 {
 public:
 	// Get
-	/* returns damage at point and bullet data (if given) */
+	/* returns damage at point and simulated bullet data (if given) */
 	static float GetDamage(CBaseEntity* pLocal, const Vector& vecPoint, FireBulletData_t* pDataOut = nullptr);
 	/* calculates damage factor */
 	static void ScaleDamage(const int iHitGroup, CBaseEntity* pEntity, const float flWeaponArmorRatio, const float flWeaponHeadShotMultiplier, float& flDamage);

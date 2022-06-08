@@ -7,7 +7,7 @@
 #include "../sdk/datatypes/qangle.h"
 // used: baseentity
 #include "../sdk/entity.h"
-#include "../sdk/interfaces/igameeventmanager.h"
+
 class CAntiAim : public CSingleton<CAntiAim>
 {
 public:
@@ -19,7 +19,6 @@ public:
 	// Values
 	/* angles modified by antiaim and being sent */
 	QAngle angSentView = { };
-	void Event(IGameEvent* pEvent, const FNV1A_t uNameHash);
 private:
 	// Main
 	void Pitch(CUserCmd* pCmd, CBaseEntity* pLocal);

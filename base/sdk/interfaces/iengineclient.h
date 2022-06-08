@@ -118,6 +118,7 @@ public:
 	{
 		MEM::CallVFunc<void>(this, 18, std::ref(angView));
 	}
+
 	void SetViewAngles(QAngle& angView)
 	{
 		MEM::CallVFunc<void>(this, 19, std::ref(angView));

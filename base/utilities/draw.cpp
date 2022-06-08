@@ -9,7 +9,6 @@
 #include "../../resources/whitney.h"
 #include "../../resources/smallest_pixel.h"
 #include "../../resources/qo0icons.h"
-#include "../../resources/father.h"
 
 #pragma region imgui_extended
 /*
@@ -212,7 +211,8 @@ bool ImGui::MultiCombo(const char* szLabel, std::vector<bool>& vecValues, const 
 		return false;
 
 	const ImGuiStyle& style = g.Style;
-	const float flActiveWidth = CalcItemWidth() - (style.ItemInnerSpacing.x + GetFrameHeight()) - 40.f;
+	const ImVec2 vecLabelSize = CalcTextSize(szLabel, nullptr, true);
+	const float flActiveWidth = CalcItemWidth() - (vecLabelSize.x > 0.0f ? style.ItemInnerSpacing.x + GetFrameHeight() : 0.0f);
 
 	std::vector<std::string_view> vecActiveItems = { };
 
@@ -222,16 +222,29 @@ bool ImGui::MultiCombo(const char* szLabel, std::vector<bool>& vecValues, const 
 		if (vecValues[i])
 			vecActiveItems.push_back(arrItems[i]);
 	}
+	
+	// fuck it, stl still haven't boost::join, fmt::join replacement
+	std::string szBuffer = { };
+	for (std::size_t i = 0U; i < vecActiveItems.size(); i++)
+	{
+		szBuffer.append(vecActiveItems[i]);
 
-	std::string szBuffer = std::format(XorStr("{}"), fmt::join(vecActiveItems, XorStr(", ")));
-	const ImVec2 vecTextSize = CalcTextSize(szBuffer.c_str());
+		if (i < vecActiveItems.size() - 1U)
+			szBuffer.append(", ");
+	}
 
 	if (szBuffer.empty())
 		szBuffer.assign("none");
-	else if (vecTextSize.x > flActiveWidth)
+	else
 	{
-		szBuffer.resize(static_cast<std::size_t>(flActiveWidth * 0.26f));
-		szBuffer.append("...");
+		const char* szWrapPosition = g.Font->CalcWordWrapPositionA(GetCurrentWindow()->FontWindowScale, &szBuffer[0], szBuffer.data() + szBuffer.length(), flActiveWidth - style.FramePadding.x * 2.0f);
+		const std::size_t nWrapLength = szWrapPosition - &szBuffer[0];
+		
+		if (nWrapLength > 0U && nWrapLength < szBuffer.length())
+		{
+			szBuffer.resize(nWrapLength);
+			szBuffer.append("...");
+		}
 	}
 
 	bool bValueChanged = false;
@@ -327,7 +340,6 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	// setup styles
 	#pragma region draw_style
 	ImGuiStyle& style = ImGui::GetStyle();
-	/*
 	style.Alpha = 1.0f;
 	style.WindowPadding = ImVec2(8, 8);
 	style.WindowRounding = 4.0f;
@@ -353,7 +365,7 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	style.TabBorderSize = 1.0f;
 	style.ButtonTextAlign = ImVec2(0.5f, 0.5f);
 	style.SelectableTextAlign = ImVec2(0.0f, 0.5f);
-	*/
+	style.MouseCursorScale = 0.75f;
 	#pragma endregion
 
 	#pragma region draw_style_color
@@ -373,7 +385,7 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	 *	accent 1 (dark) - indigo: 55,0,100
 	 *	accent 3 (darker) - darkviolet: 75,50,105
 	 */
-	/*
+
 	style.Colors[ImGuiCol_Text] = ImVec4(1.00f, 1.00f, 1.00f, 1.00f);					// primtv 0
 	style.Colors[ImGuiCol_TextDisabled] = ImVec4(0.75f, 0.75f, 0.75f, 0.85f);			// primtv 2
 	style.Colors[ImGuiCol_TextSelectedBg] = ImVec4(0.22f, 0.00f, 0.40f, 0.85f);			// accent 1
@@ -382,7 +394,12 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	style.Colors[ImGuiCol_ChildBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.60f);				// primtv 1
 	style.Colors[ImGuiCol_PopupBg] = ImVec4(0.08f, 0.08f, 0.12f, 0.85f);				// primtv 1
 
+	style.Colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 0.10f);					// primtv 4
+	style.Colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.00f);			// clear
+
 	style.Colors[ImGuiCol_FrameBg] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
+	style.Colors[ImGuiCol_FrameBgHovered] = ImVec4(0.22f, 0.00f, 0.40f, 1.00f);			// accent 1
+	style.Colors[ImGuiCol_FrameBgActive] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);			// accent 0
 
 	style.Colors[ImGuiCol_ControlBg] = ImVec4(0.11f, 0.14f, 0.20f, 1.00f);				// primtv 3
 	style.Colors[ImGuiCol_ControlBgHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);		// primtv 5
@@ -416,8 +433,25 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	style.Colors[ImGuiCol_SeparatorHovered] = ImVec4(0.30f, 0.30f, 0.30f, 1.00f);		// primtv 5
 	style.Colors[ImGuiCol_SeparatorActive] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);		// accent 0
 
+	style.Colors[ImGuiCol_ResizeGrip] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
+	style.Colors[ImGuiCol_ResizeGripHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.70f);		// primtv 5
+	style.Colors[ImGuiCol_ResizeGripActive] = ImVec4(0.22f, 0.00f, 0.40f, 1.00f);		// accent 1
+
+	style.Colors[ImGuiCol_Tab] = ImVec4(0.08f, 0.08f, 0.12f, 0.80f);					// primtv 1
+	style.Colors[ImGuiCol_TabHovered] = ImVec4(0.30f, 0.30f, 0.30f, 0.80f);				// primtv 5
+	style.Colors[ImGuiCol_TabActive] = ImVec4(0.55f, 0.15f, 0.90f, 0.70f);				// accent 0
+	style.Colors[ImGuiCol_TabUnfocused] = ImVec4(0.30f, 0.30f, 0.30f, 0.70f);			// primtv 5
+	style.Colors[ImGuiCol_TabUnfocusedActive] = ImVec4(0.55f, 0.15f, 0.90f, 0.60f);		// accent 0
+
+	style.Colors[ImGuiCol_PlotLines] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
+	style.Colors[ImGuiCol_PlotLinesHovered] = ImVec4(0.55f, 0.15f, 0.90f, 0.50f);		// accent 0
+	style.Colors[ImGuiCol_PlotHistogram] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);			// accent 0
+	style.Colors[ImGuiCol_PlotHistogramHovered] = ImVec4(0.55f, 0.15f, 0.90f, 0.50f);	// accent 0
+
+	style.Colors[ImGuiCol_DragDropTarget] = ImVec4(0.30f, 0.20f, 0.40f, 0.80f);			// accent 3
+	style.Colors[ImGuiCol_Triangle] = ImVec4(0.55f, 0.15f, 0.90f, 1.00f);				// accent 0
+
 	style.Colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.25f);		// primtv 4
-	*/
 	#pragma endregion
 
 	// create fonts
@@ -427,38 +461,9 @@ void D::Setup(IDirect3DDevice9* pDevice, unsigned int uFontFlags)
 	imWhitneyConfig.RasterizerFlags = ImGuiFreeType::ForceAutoHint;
 	F::Whitney = io.Fonts->AddFontFromMemoryCompressedTTF(whitney_compressed_data, whitney_compressed_size, 13.f, &imWhitneyConfig, io.Fonts->GetGlyphRangesCyrillic());
 
-	ImFontConfig imFatherConfig;
-	imFatherConfig.RasterizerFlags = ImGuiFreeType::LightHinting;
-	F::Father = io.Fonts->AddFontFromMemoryCompressedTTF(father_compressed_data, father_compressed_size, 13.f, &imFatherConfig, io.Fonts->GetGlyphRangesCyrillic());
-
-	ImFontConfig ImABoldFatherConfig;
-	ImABoldFatherConfig.RasterizerFlags = ImGuiFreeType::Bold;
-	F::FatherBold = io.Fonts->AddFontFromMemoryCompressedTTF(father_compressed_data, father_compressed_size, 20.f, &ImABoldFatherConfig, io.Fonts->GetGlyphRangesCyrillic());
-
 	ImFontConfig imVerdanaConfig;
 	imVerdanaConfig.RasterizerFlags = ImGuiFreeType::Bold;
 	F::Verdana = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\Verdana.ttf"), 14.f, &imVerdanaConfig, io.Fonts->GetGlyphRangesCyrillic());
-
-	ImFontConfig imArialConfig;
-	imArialConfig.RasterizerFlags = ImGuiFreeType::Bold;
-	F::ArialBold = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\Arial.ttf"), 14.f, &imArialConfig, io.Fonts->GetGlyphRangesCyrillic());
-
-	ImFontConfig imArialLarge;
-	imArialLarge.RasterizerFlags = ImGuiFreeType::Bold;
-	F::ArialLarge = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\Arial.ttf"), 20.f, &imArialLarge, io.Fonts->GetGlyphRangesCyrillic());
-
-	ImFontConfig ImArialNoBoldConfig;
-	ImArialNoBoldConfig.RasterizerFlags = ImGuiFreeType::LightHinting;
-	F::Arial = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\Arial.ttf"), 13.f, &ImArialNoBoldConfig, io.Fonts->GetGlyphRangesCyrillic());
-
-
-	ImFontConfig ImSegoeConfig;
-	ImSegoeConfig.RasterizerFlags = ImGuiFreeType::NoHinting;
-	F::SegoeUI = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\SegoeUI.ttf"), 13.f, &ImSegoeConfig, io.Fonts->GetGlyphRangesCyrillic());
-
-	ImFontConfig ImTahomaConfig;
-	ImTahomaConfig.RasterizerFlags = ImGuiFreeType::NoHinting;
-	F::Tahoma = io.Fonts->AddFontFromFileTTF(XorStr("C:\\Windows\\Fonts\\tahoma.ttf"), 15.f, &ImTahomaConfig, io.Fonts->GetGlyphRangesCyrillic());
 
 	ImFontConfig imSmallestPixelConfig;
 	imSmallestPixelConfig.RasterizerFlags = ImGuiFreeType::LightHinting;

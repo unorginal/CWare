@@ -11,39 +11,7 @@
 // used: keybind for desync side
 #include "../utilities/inputsystem.h"
 // used: get corrected tickbase
-#include "./legitbot.h"
 #include "prediction.h"
-#include <ranges>
-#ifdef DEBUG_CONSOLE
-#include <iostream>
-#endif
-
-bool jitterYaw = false;
-bool jitterPitch = false;
-
-bool doAntiAim = true;
-
-void CAntiAim::Event(IGameEvent* pEvent, const FNV1A_t uNameHash) {
-	if (!I::Engine->IsInGame())
-		return;
-
-	CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer();
-
-	if (pLocal == nullptr || !pLocal->IsAlive())
-		return;
-
-	const float flServerTime = TICKS_TO_TIME(pLocal->GetTickBase());
-	// get hitmarker info
-	if (C::Get<bool>(Vars.bAntiAim))
-	{
-		if (pEvent->GetName() == "round_prestart") {
-			doAntiAim = false;
-		}
-		else if (pEvent->GetName() == "round_freeze_end") {
-			doAntiAim = true;
-		}
-	}
-}
 
 void CAntiAim::Run(CUserCmd* pCmd, CBaseEntity* pLocal, bool& bSendPacket)
 {
@@ -68,9 +36,6 @@ void CAntiAim::Run(CUserCmd* pCmd, CBaseEntity* pLocal, bool& bSendPacket)
 	CCSWeaponData* pWeaponData = I::WeaponSystem->GetWeaponData(nDefinitionIndex);
 
 	if (pWeaponData == nullptr)
-		return;
-
-	if (!doAntiAim)
 		return;
 
 	float flServerTime = TICKS_TO_TIME(CPrediction::Get().GetTickBase(pCmd, pLocal));
@@ -129,6 +94,7 @@ void CAntiAim::Run(CUserCmd* pCmd, CBaseEntity* pLocal, bool& bSendPacket)
 		angSentView.Normalize();
 		angSentView.Clamp();
 	}
+
 	// send angles
 	pCmd->angViewPoint = angSentView;
 }
@@ -139,7 +105,7 @@ void CAntiAim::UpdateServerAnimations(CUserCmd* pCmd, CBaseEntity* pLocal)
 	static CBaseHandle hOldLocal = pLocal->GetRefEHandle();
 	static float flOldSpawnTime = pLocal->GetSpawnTime();
 
-	bool bAllocate = (pServerAnimState == nullptr);
+	bool bAllocate = (pServerAnimState == nullptr || pServerAnimState->pEntity != pLocal);
 	bool bChange = (!bAllocate && pLocal->GetRefEHandle() != hOldLocal);
 	bool bReset = (!bAllocate && !bChange && pLocal->GetSpawnTime() != flOldSpawnTime);
 
@@ -178,7 +144,6 @@ void CAntiAim::UpdateServerAnimations(CUserCmd* pCmd, CBaseEntity* pLocal)
 	{
 		// backup values
 		std::array<CAnimationLayer, MAXOVERLAYS> arrNetworkedLayers;
-		//std::copy(pLocal->GetAnimationOverlays(), pLocal->GetAnimationOverlays() + arrNetworkedLayers.size(), arrNetworkedLayers.data());
 		std::ranges::copy(pLocal->GetAnimationOverlays(), arrNetworkedLayers.data());
 		const QAngle angAbsViewOld = pLocal->GetAbsAngles();
 		const std::array<float, MAXSTUDIOPOSEPARAM> arrPosesOld = pLocal->GetPoseParameter();
@@ -186,7 +151,6 @@ void CAntiAim::UpdateServerAnimations(CUserCmd* pCmd, CBaseEntity* pLocal)
 		pServerAnimState->Update(pCmd->angViewPoint);
 
 		// restore values
-		//std::copy(arrNetworkedLayers.begin(), arrNetworkedLayers.end(), pLocal->GetAnimationOverlays());
 		std::ranges::copy(arrNetworkedLayers, pLocal->GetAnimationOverlays().Base());
 		pLocal->GetPoseParameter() = arrPosesOld;
 		pLocal->SetAbsAngles(angAbsViewOld);
@@ -206,20 +170,11 @@ void CAntiAim::Pitch(CUserCmd* pCmd, CBaseEntity* pLocal)
 	{
 	case (int)EAntiAimPitchType::NONE:
 		break;
-	case (int)EAntiAimPitchType::CUSTOM:
-		if (C::Get<bool>(Vars.bAntiAimPitchJitter)) {
-			angSentView.x = jitterPitch ? C::Get<float>(Vars.fAntiAimPitchAmount) : (-1.0f * C::Get<float>(Vars.fAntiAimPitchAmount));
-			jitterPitch = !jitterPitch;
-		}
-		else
-			angSentView.x = C::Get<float>(Vars.fAntiAimPitchAmount);
+	case (int)EAntiAimPitchType::UP:
+		angSentView.x = -89.0f;
 		break;
-	case (int)EAntiAimPitchType::RANDOM:
-		angSentView.x = M::RandomFloatFunc(-89.0f, 89.0f);
-		break;
-	case (int)EAntiAimPitchType::JITTER:
-		angSentView.x += jitterPitch ? 189.0f : -189.0f;
-		jitterPitch = !jitterPitch;
+	case (int)EAntiAimPitchType::DOWN:
+		angSentView.x = 89.f;
 		break;
 	case (int)EAntiAimPitchType::ZERO:
 		// untrusted pitch example
@@ -239,60 +194,7 @@ void CAntiAim::Yaw(CUserCmd* pCmd, CBaseEntity* pLocal, float flServerTime, bool
 	{
 	case (int)EAntiAimYawType::NONE:
 		break;
-	case (int)EAntiAimYawType::CUSTOM:
-		if (!pLocal->IsAlive())
-			return;
-		if (C::Get<bool>(Vars.bAntiAimAtTarget)) {
-			CBaseEntity* closestEntity = CLegitBot::Get().FindClosestPlayer(pLocal);
-			if (closestEntity && closestEntity->IsAlive() && !closestEntity->IsDormant()) {
-				Vector enemyHead;
-				std::optional<Vector> enemyHeadPos = closestEntity->GetBonePosition(BONE_HEAD);
-				if (!enemyHeadPos.has_value())
-				{
-					return;
-				}
-				enemyHead = enemyHeadPos.value();
-				Vector ourOrigin = pLocal->GetOrigin();
-				Vector viewOffset = pLocal->GetViewOffset();
-				Vector ourPositionVec = (ourOrigin + viewOffset);
-				Vector* ourPosition = &ourPositionVec;
-				// Math $$$
-				Vector deltaVec = { enemyHead.x - ourPosition->x, enemyHead.y - ourPosition->y, enemyHead.z - ourPosition->z };
-				float yaw = atan2(deltaVec.y, deltaVec.x) * (180 / M_PI);
-				angSentView.y = yaw;
-			}
-		}
-		if (C::Get<bool>(Vars.bAntiAimYawJitter)) {
-			angSentView.y += jitterYaw ? C::Get<float>(Vars.fAntiAimYawAmount) : (-1.0f * C::Get<float>(Vars.fAntiAimYawAmount));
-			jitterYaw = !jitterYaw;
-		}
-		else
-			angSentView.y += C::Get<float>(Vars.fAntiAimYawAmount);
-		break;
-		angSentView.y += C::Get<float>(Vars.fAntiAimYawAmount);
-		break;
-	case (int)EAntiAimYawType::RANDOM:
-		angSentView.y = M::RandomFloatFunc(-189.0f, 189.0f);
-		break;
-	case (int)EAntiAimYawType::JITTER:
-		angSentView.y += jitterYaw ? 89.0f : -89.0f;
-		jitterYaw = !jitterYaw;
-		break;
 	case (int)EAntiAimYawType::DESYNC:
-	{
-		static bool Switch = false;
-		float DesyncAngle = I::ClientState->nChokedCommands >= C::Get<int>(Vars.iFakelagTicks) ? 180.f : 60.f;
-
-		angSentView = QAngle(89.f, angSentView.y + DesyncAngle, 0);
-
-		pCmd->flSideMove += Switch ? 1.01 : -1.01;
-
-		if (pLocal->GetFlags() & IN_DUCK)
-			pCmd->flSideMove += Switch ? 2.02 : -2.02;
-
-		Switch = !Switch;
-	}
-	case (int)EAntiAimYawType::DESYNCBACKWARDS:
 	{
 		static float flSide = 1.0f;
 
@@ -316,10 +218,10 @@ void CAntiAim::Yaw(CUserCmd* pCmd, CBaseEntity* pLocal, float flServerTime, bool
 
 		if (bSendPacket)
 			// real
-			angSentView.y += (flMaxDesyncDelta + 90) * flSide;
+			angSentView.y += (flMaxDesyncDelta + 30) * flSide;
 		else
 			// fake
-			angSentView.y -= (flMaxDesyncDelta + 90) * flSide;
+			angSentView.y -= (flMaxDesyncDelta + 30) * flSide;
 
 		break;
 	}

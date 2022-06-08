@@ -57,16 +57,16 @@ struct studiohdr_t;
 class CStudioHdr
 {
 public:
-	studiohdr_t* pStudioHdr;
-	virtualmodel_t* pVirtualModel;
-	void* pSoftbody;
+	studiohdr_t*	pStudioHdr;
+	virtualmodel_t*	pVirtualModel;
+	void*			pSoftbody;
 	mutable CUtlVector<const studiohdr_t*> pStudioHdrCache;
 	mutable int		mnFrameUnlockCounter;
-	int* pFrameUnlockCounter;
+	int*			pFrameUnlockCounter;
 	std::byte		pad0[0x8];
 	CUtlVector<int>	vecBoneFlags;
 	CUtlVector<int>	vecBoneParent;
-	void* pActivityToSequence;
+	void*			pActivityToSequence;
 };
 
 struct mstudiobone_t
