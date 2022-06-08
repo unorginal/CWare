@@ -711,7 +711,7 @@ IMaterial* CVisuals::CreateMaterial(std::string_view szName, std::string_view sz
 	 * use "mat_texture_list 1" command to see full materials list
 	 */
 
-	const std::string szMaterial = fmt::format(XorStr(R"#("{shader}"
+	const std::string szMaterial = std::format(XorStr(R"#("{shader}"
 	{{
 		"$basetexture"		"{texture}"
 		"$envmap"			"{envmap}"

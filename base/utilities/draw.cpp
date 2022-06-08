@@ -223,7 +223,7 @@ bool ImGui::MultiCombo(const char* szLabel, std::vector<bool>& vecValues, const 
 			vecActiveItems.push_back(arrItems[i]);
 	}
 
-	std::string szBuffer = fmt::format(XorStr("{}"), fmt::join(vecActiveItems, XorStr(", ")));
+	std::string szBuffer = std::format(XorStr("{}"), fmt::join(vecActiveItems, XorStr(", ")));
 	const ImVec2 vecTextSize = CalcTextSize(szBuffer.c_str());
 
 	if (szBuffer.empty())

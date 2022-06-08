@@ -506,7 +506,7 @@
     <ClCompile Include="sdk\convar.cpp">
       <Filter>source\sdk</Filter>
     </ClCompile>
-    <ClCompile Include="main.cpp">
+    <ClCompile Include="core.cpp">
       <Filter>source</Filter>
     </ClCompile>
     <ClCompile Include="utilities\logging.cpp">

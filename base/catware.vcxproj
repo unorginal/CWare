@@ -154,7 +154,7 @@
     <ClCompile Include="features\misc.cpp" />
     <ClCompile Include="features\prediction.cpp" />
     <ClCompile Include="LuaEngine.cpp" />
-    <ClCompile Include="main.cpp" />
+    <ClCompile Include="core.cpp" />
     <ClCompile Include="features\antiaim.cpp" />
     <ClCompile Include="features\autowall.cpp" />
     <ClCompile Include="features\lagcompensation.cpp" />

@@ -40,7 +40,7 @@ void L::Detach()
 void L::Print(std::string_view szText)
 {
 	// format time
-	std::string szTime = fmt::format(XorStr("[{:%d-%m-%Y %X}] "), fmt::localtime(std::time(nullptr)));
+	std::string szTime = std::format(XorStr("[{:%d-%m-%Y %X}] "), fmt::localtime(std::time(nullptr)));
 
 	#ifdef DEBUG_CONSOLE
 	// print to console

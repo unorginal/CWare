@@ -152,7 +152,7 @@ bool C::Save(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(fmt::format(XorStr("[error] json save failed: {}"), ex.what()));
+		L::Print(std::format(XorStr("[error] json save failed: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
@@ -172,12 +172,12 @@ bool C::Save(std::string_view szFileName)
 	catch (std::ofstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(fmt::format(XorStr("[error] failed to save configuration: {}"), ex.what()));
+		L::Print(std::format(XorStr("[error] failed to save configuration: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(fmt::format(XorStr("saved configuration at: {}"), szFile));
+	L::Print(std::format(XorStr("saved configuration at: {}"), szFile));
 	return true;
 }
 
@@ -207,7 +207,7 @@ bool C::Load(std::string_view szFileName)
 	catch (std::ifstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(fmt::format(XorStr("[error] failed to load configuration: {}"), ex.what()));
+		L::Print(std::format(XorStr("[error] failed to load configuration: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
@@ -310,12 +310,12 @@ bool C::Load(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(fmt::format(XorStr("[error] json load failed: {}"), ex.what()));
+		L::Print(std::format(XorStr("[error] json load failed: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(fmt::format(XorStr("loaded configuration at: {}"), szFile));
+	L::Print(std::format(XorStr("loaded configuration at: {}"), szFile));
 	return true;
 }
 void C::Remove(const std::size_t nIndex)
@@ -332,7 +332,7 @@ void C::Remove(const std::size_t nIndex)
 	if (std::filesystem::remove(szFile))
 	{
 		vecFileNames.erase(vecFileNames.cbegin() + nIndex);
-		L::Print(fmt::format(XorStr("removed configuration at: {}"), szFile));
+		L::Print(std::format(XorStr("removed configuration at: {}"), szFile));
 	}
 }
 
@@ -344,7 +344,7 @@ void C::Refresh()
     {
 		if (it.path().filename().extension() == XorStr(".ctwr"))
 		{
-			L::Print(fmt::format(XorStr("found configuration file: {}"), it.path().filename().string()));
+			L::Print(std::format(XorStr("found configuration file: {}"), it.path().filename().string()));
 			vecFileNames.push_back(it.path().filename().string());
 		}
     }
