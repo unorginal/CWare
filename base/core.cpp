@@ -32,19 +32,19 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		 * @note: serverbrowser.dll is last loaded module (u can seen it when debug)
 		 * here is check for all modules loaded
 		 */
-		while (MEM::GetModuleBaseHandle(SERVERBROWSER_DLL) == nullptr)
+		while (GetModuleHandle(SERVERBROWSER_DLL) == nullptr)
 			std::this_thread::sleep_for(200ms);
 
 		#ifdef DEBUG_CONSOLE
 		// console logging
-		if (!L::Attach(XorStr("qo0's base developer-mode")))
+		if (!L::Attach(XorStr("catware's developer-mode")))
 			throw std::runtime_error(XorStr("failed to attach console"));
 
 		L::Print(XorStr("console opened"));
 		#else
 		// file logging
 		// @note: use std::ios::app instead std::ios::trunc to not clear every time
-		L::ofsFile.open(C::GetWorkingPath().append(XorStr("qo0base.log")), std::ios::out | std::ios::trunc);
+		L::ofsFile.open(C::GetWorkingPath().append(XorStr("catware.log")), std::ios::out | std::ios::trunc);
 		#endif
 
 		// capture interfaces from game/steam (not always) modules
@@ -58,7 +58,7 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		if (strcmp(I::Engine->GetProductVersionString(), XorStr("1.37.7.6")) != 0)
 		{
 			L::PushConsoleColor(FOREGROUND_YELLOW);
-			L::Print(XorStr("[warning] version doesnt match! current cs:go version: {}"), I::Engine->GetProductVersionString());
+			L::Print(std::format(XorStr("[warning] version doesnt match! current cs:go version: {}"), I::Engine->GetProductVersionString()));
 			L::PopConsoleColor();
 		}
 		#endif
@@ -67,10 +67,10 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		 * fill networkable variables map
 		 * dump received netvars to the file
 		 */
-		if (!CNetvarManager::Get().Setup(XorStr("netvars.qo0")))
+		if (!CNetvarManager::Get().Setup(XorStr("netvars.ctwr")))
 			throw std::runtime_error(XorStr("failed to initialize netvars"));
 
-		L::Print(XorStr("found [{:d}] props in [{:d}] tables"), CNetvarManager::Get().iStoredProps, CNetvarManager::Get().iStoredTables);
+		L::Print(std::format(XorStr("found [{:d}] props in [{:d}] tables"), CNetvarManager::Get().iStoredProps, CNetvarManager::Get().iStoredTables));
 
 		// export completed mathematics functions from game/steam (not always) modules
 		if (!M::Setup())
@@ -108,7 +108,7 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		L::Print(XorStr("proxies applied"));
 
 		// setup values to save/load cheat variables in/from files and load default configuration
-		if (!C::Setup(XorStr("default.qo0")))
+		if (!C::Setup(XorStr("default.ctwr")))
 		{
 			// this error is not critical, only show that
 			L::PushConsoleColor(FOREGROUND_RED);
@@ -120,16 +120,17 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 
 		// show message about successful load in logs and in game console
 		L::PushConsoleColor(FOREGROUND_MAGENTA);
-		L::Print(XorStr("qo0 base successfully loaded"));
+		L::Print(XorStr("catware successfully loaded"));
 		L::PopConsoleColor();
 		I::GameConsole->Clear();
-		I::ConVar->ConsoleColorPrintf(Color(255, 50, 255, 255), XorStr("qo0 base successfully loaded.\nbuild date: %s / %s\n"), __DATE__, __TIME__);
+		I::ConVar->ConsoleColorPrintf(Color(255, 50, 255, 255), XorStr("catware successfully loaded.\nbuild date: %s / %s\n"), __DATE__, __TIME__);
+		I::ConVar->ConsolePrintf(XorStr("CATWARE.DEV"));
 	}
 	catch (const std::exception& ex)
 	{
 		// print error message
 		L::PushConsoleColor(FOREGROUND_INTENSE_RED);
-		L::Print(XorStr("[error] {}"), ex.what());
+		L::Print(std::format(XorStr("[error] {}"), ex.what()));
 		L::PopConsoleColor();
 
 		#ifdef _DEBUG
@@ -146,10 +147,8 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 
 DWORD WINAPI OnDllDetach(LPVOID lpParameter)
 {
-	// unload cheat if pressed specified key
 	while (!IPT::IsKeyReleased(C::Get<int>(Vars.iPanicKey)))
 		std::this_thread::sleep_for(500ms);
-
 	#if 0
 	// destroy entity listener
 	U::EntityListener.Destroy();
@@ -194,9 +193,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		DisableThreadLibraryCalls(hModule);
 
 		// basic process check
-		if (MEM::GetModuleBaseHandle(XorStr("csgo.exe")) == nullptr)
+		if (GetModuleHandle(XorStr("csgo.exe")) == nullptr)
 		{
-			MessageBox(nullptr, XorStr("this cannot be injected in another process\nopen <csgo.exe> to inject"), XorStr("qo0 base"), MB_OK);
+			MessageBox(nullptr, XorStr("this cannot be injected in another process\nopen <csgo.exe> to inject"), XorStr("catware"), MB_OK);
 			return FALSE;
 		}
 

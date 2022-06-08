@@ -3,34 +3,32 @@ using FNV1A_t = std::uint32_t;
 
 /*
  * 32-BIT FNV1A HASH
+ * much proper to use fnv1a instead crc32 with randomly access ~1kb 
  * @credits: underscorediscovery
  */
 namespace FNV1A
 {
-	/* @section: fnv1a constants */
-	constexpr std::uint32_t ullBasis = 0x811C9DC5;
-	constexpr std::uint32_t ullPrime = 0x1000193;
+	/* fnv1a constants */
+	inline constexpr std::uint32_t ullBasis = 0x811C9DC5;
+	inline constexpr std::uint32_t ullPrime = 0x1000193;
 
-	/* @section: get */
-	/// @param szString : string to generate hash of
-	/// @param uValue : key of hash generation
-	/// @returns : calculated at compile-time FNV1A hash of given string
-	consteval FNV1A_t HashConst(const char* szString, const FNV1A_t uValue = ullBasis) noexcept
+	/* create compile time hash */
+	constexpr FNV1A_t HashConst(const char* szString, const FNV1A_t uValue = ullBasis) noexcept
 	{
-		return (szString[0] == '\0') ? uValue : HashConst(&szString[1], (uValue ^ static_cast<FNV1A_t>(szString[0])) * ullPrime);
+		return (szString[0] == '\0') ? uValue : HashConst(&szString[1], (uValue ^ FNV1A_t(szString[0])) * ullPrime);
 	}
 
-	/// @param szString : string to generate hash of
-	/// @param uValue : key of hash generation
-	/// @returns : calculated at run-time FNV1A hash of given string
-	inline FNV1A_t Hash(const char* szString, FNV1A_t uValue = ullBasis)
+	/* create runtime hash */
+	inline FNV1A_t Hash(const char* szString)
 	{
+		FNV1A_t uHashed = ullBasis;
+
 		for (std::size_t i = 0U; i < strlen(szString); ++i)
 		{
-			uValue ^= szString[i];
-			uValue *= ullPrime;
+			uHashed ^= szString[i];
+			uHashed *= ullPrime;
 		}
 
-		return uValue;
+		return uHashed;
 	}
 }

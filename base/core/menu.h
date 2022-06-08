@@ -35,14 +35,14 @@ namespace T
 {
 	// Get
 	/* render tabs selection */
-	template <std::size_t S> // not a best way, but we stay using cheaper, fixed-sized arrays instead dynamic vectors
-	void Render(const char* szTabBar, const std::array<CTab, S> arrTabs, int* nCurrentTab, const ImVec4& colActive, ImGuiTabBarFlags flags = ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_NoCloseWithMiddleMouseButton | ImGuiTabBarFlags_NoTooltip);
-
-	// Tabs
 	void RageBot();
 	void LegitBot();
+	void Welcome();
 	void Visuals();
 	void Miscellaneous();
+	void AntiAim();
+	void Lua();
+	void MenuSettings();
 	void SkinChanger();
 
 	// Values

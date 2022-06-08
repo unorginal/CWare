@@ -64,7 +64,6 @@ namespace C // @credits: ducarii
 	void Remove(const std::size_t nIndex);
 	/* loop through directory content and push config filenames to vector */
 	void Refresh();
-
 	// Get
 	/* return variable index by hashed name */
 	std::size_t GetVariableIndex(const FNV1A_t uNameHash);
@@ -74,6 +73,7 @@ namespace C // @credits: ducarii
 	// Values
 	/* default configs path */
 	const std::filesystem::path fsPath = GetWorkingPath() / XorStr("settings");
+	const std::filesystem::path luaPath = GetWorkingPath() / XorStr("Scripts");
 	/* all user config filenames */
 	inline std::deque<std::string> vecFileNames = { };
 	/* configuration variables */

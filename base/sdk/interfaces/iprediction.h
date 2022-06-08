@@ -50,7 +50,7 @@ enum ESoundLevel;
 class IMoveHelper
 {
 public:
-	virtual	const char*			GetName(void* hEntity) const = 0;
+	virtual	const char* GetName(void* hEntity) const = 0;
 	virtual void				SetHost(CBaseEntity* pHost) = 0;
 	virtual void				ResetTouchList() = 0;
 	virtual bool				AddToTouched(const CGameTrace& trace, const Vector& vecImpactVelocity) = 0;
@@ -74,11 +74,11 @@ public:
 	virtual void				StartTrackPredictionErrors(CBaseEntity* pEntity) = 0;
 	virtual void				FinishTrackPredictionErrors(CBaseEntity* pEntity) = 0;
 	virtual void				DiffPrint(char const* fmt, ...) = 0;
-	virtual Vector const&		GetPlayerMins(bool bDucked) const = 0;
-	virtual Vector const&		GetPlayerMaxs(bool bDucked) const = 0;
-	virtual Vector const&		GetPlayerViewOffset(bool bDucked) const = 0;
+	virtual Vector const& GetPlayerMins(bool bDucked) const = 0;
+	virtual Vector const& GetPlayerMaxs(bool bDucked) const = 0;
+	virtual Vector const& GetPlayerViewOffset(bool bDucked) const = 0;
 	virtual bool				IsMovingPlayerStuck() const = 0;
-	virtual CBaseEntity*		GetMovingPlayer() const = 0;
+	virtual CBaseEntity* GetMovingPlayer() const = 0;
 	virtual void				UnblockPusher(CBaseEntity* pEntity, CBaseEntity* pPusher) = 0;
 	virtual void				SetupMovementBounds(CMoveData* pMove) = 0;
 };
@@ -111,7 +111,6 @@ public:
 	};
 
 	Split_t			Split[1];						// 0x0018
-	// SavedGlobals 0x4C
 
 public:
 	void Update(int iStartFrame, bool bValidFrame, int nIncomingAcknowledged, int nOutgoingCommand)

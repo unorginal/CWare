@@ -5,7 +5,7 @@
 #include "datatypes/qangle.h"
 // used: findpattern
 #include "../utilities/memory.h"
-
+#include "../core/netvar.h"
 /* max animation layers */
 #define MAXOVERLAYS 15
 
@@ -83,6 +83,7 @@ class CBaseCombatWeapon;
 class CCSGOPlayerAnimState
 {
 public:
+	N_ADD_OFFSET(float, flGroundSpeed, 0x11C);
 	void Create(CBaseEntity* pEntity)
 	{
 		using CreateAnimationStateFn = void(__thiscall*)(void*, CBaseEntity*);

@@ -1,7 +1,8 @@
 #pragma once
 // used: define to add values to variables vector
 #include "config.h"
-
+#include <vector>
+//#include "../WeaponConfig.h"
 #pragma region variables_array_entries
 enum EVisualsInfoFlags : int
 {
@@ -20,21 +21,40 @@ enum EVisualsRemovals : int
 	REMOVAL_SCOPE,
 	REMOVAL_MAX
 };
+
+enum EAimbotHitboxes : int
+{
+	HEAD = 0,
+	NECK,
+	UPPER_CHEST,
+	CHEST,
+	ARMS,
+	STOMACH,
+	PELVIS,
+	LEGS,
+	FEET,
+	HITBOXES_ALL
+};
 #pragma endregion
 
 #pragma region variables_combo_entries
 enum class EAntiAimPitchType : int
 {
 	NONE = 0,
-	UP,
-	DOWN,
+	CUSTOM,
+	JITTER,
+	RANDOM,
 	ZERO
 };
 
 enum class EAntiAimYawType : int
 {
 	NONE = 0,
-	DESYNC
+	CUSTOM,
+	JITTER,
+	RANDOM,
+	DESYNC,
+	DESYNCBACKWARDS
 };
 
 enum class EVisualsBoxType : int
@@ -50,7 +70,16 @@ enum class EVisualsGlowStyle : int
 	COVER,
 	INNER
 };
-
+enum ERageBotFakelag : int {
+	FAKELAG_STANDING,
+	FAKELAG_MOVING,
+	FAKELAG_AIR,
+	FAKELAG_DUCKING,
+	FAKELAG_NONE,
+	FAKELAG_WEAPON_ACTIVITY,
+	FAKELAG_ONSHOT,
+	FAKELAG_MAX
+};
 enum class EVisualsPlayersChams : int
 {
 	COVERED = 0,
@@ -69,6 +98,15 @@ enum class EVisualsViewModelChams : int
 	SCROLL,
 	CHROME
 };
+enum class EWeaponCategory : int
+{
+	GENERAL = 0,
+	PISTOLS,
+	HEAVYPISTOL,
+	SCOUT,
+	AWP,
+	AUTOSNIPER
+};
 #pragma endregion
 
 struct Variables_t
@@ -81,13 +119,110 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bAntiAim, false);
 	C_ADD_VARIABLE(int, iAntiAimPitch, 0);
 	C_ADD_VARIABLE(int, iAntiAimYaw, 0);
+	C_ADD_VARIABLE(float, fAntiAimPitchAmount, 89.0f);
+	C_ADD_VARIABLE(float, fAntiAimYawAmount, -189.0f);
+	C_ADD_VARIABLE(int, iAntiAimDesyncAmount, 0);
+	C_ADD_VARIABLE(bool, bAntiAimPitchJitter, false);
+	C_ADD_VARIABLE(bool, bAntiAimAtTarget, false);
+	C_ADD_VARIABLE(bool, bAntiAimYawJitter, false);
+	C_ADD_VARIABLE(int, iFakelagTicks, 4);
+	C_ADD_VARIABLE_VECTOR(bool, FAKELAG_MAX, vecMiscFakeLagType, true);
 	C_ADD_VARIABLE(int, iAntiAimDesyncKey, VK_XBUTTON1);
 	#pragma endregion
 
 	#pragma region variables_legit
 	// aimbot
 	C_ADD_VARIABLE(bool, bLegit, false);
+	C_ADD_VARIABLE(int, iAimbotType, 0);
+	C_ADD_VARIABLE(float, fMaxFovDistance, 1.0f);
+	C_ADD_VARIABLE(float, fSmoothAmount, 0.99f);
+	C_ADD_VARIABLE(bool, bSilentAim, false);
+	C_ADD_VARIABLE(int, iAimbotKey, 0);
+	C_ADD_VARIABLE(bool, bAlwaysShowFovCircle, false);
+	C_ADD_VARIABLE(bool, bVisibleCheck, false);
+	C_ADD_VARIABLE(bool, bSmokeCheck, false);
+	C_ADD_VARIABLE(bool, bScopeCheck, false);
+	C_ADD_VARIABLE(bool, bRCS, false);
 
+
+	/*
+	
+	RAGE AIMBOT TAB
+	
+	*/
+
+	C_ADD_VARIABLE(int, iRageWeaponType, 0);
+	C_ADD_VARIABLE(int, iRageMinDamageOverrideKey, 0);
+	C_ADD_VARIABLE(int, iRageDoubleTapKey, 0);
+
+	// Rage Aimbot (General)
+	C_ADD_VARIABLE(float, fRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bUseMultipoint, false);
+	C_ADD_VARIABLE(float, fMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bSeeAngles, false);
+	C_ADD_VARIABLE(bool, bResolver, true);
+	C_ADD_VARIABLE(bool, bAutoDuck, false);
+	C_ADD_VARIABLE(bool, bAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vHitboxes, false);
+
+	// Pistols
+	C_ADD_VARIABLE(float, fPistolRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bPistolUseMultipoint, false);
+	C_ADD_VARIABLE(float, fPistolMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iPistolHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bPistolSeeAngles, false);
+	C_ADD_VARIABLE(bool, bPistolResolver, true);
+	C_ADD_VARIABLE(bool, bPistolAutoDuck, false);
+	C_ADD_VARIABLE(bool, bPistolAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vPistolHitboxes, false);
+
+	// Heavy Pistols
+	C_ADD_VARIABLE(float, fHVPistolRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bHVPistolUseMultipoint, false);
+	C_ADD_VARIABLE(float, fHVPistolMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iHVPistolHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bHVPistolSeeAngles, false);
+	C_ADD_VARIABLE(bool, bHVPistolResolver, true);
+	C_ADD_VARIABLE(bool, bHVPistolAutoDuck, false);
+	C_ADD_VARIABLE(bool, bHVPistolAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vHVPistolHitboxes, false);
+
+	// Scout
+	C_ADD_VARIABLE(float, fScoutRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bScoutUseMultipoint, false);
+	C_ADD_VARIABLE(float, fScoutMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iScoutHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bScoutSeeAngles, false);
+	C_ADD_VARIABLE(bool, bScoutResolver, true);
+	C_ADD_VARIABLE(bool, bScoutAutoDuck, false);
+	C_ADD_VARIABLE(bool, bScoutAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vScoutHitboxes, false);
+
+	// AWP
+	C_ADD_VARIABLE(float, fAWPRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bAWPUseMultipoint, false);
+	C_ADD_VARIABLE(float, fAWPMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iAWPHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bAWPSeeAngles, false);
+	C_ADD_VARIABLE(bool, bAWPResolver, true);
+	C_ADD_VARIABLE(bool, bAWPAutoDuck, false);
+	C_ADD_VARIABLE(bool, bAWPAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vAWPHitboxes, false);
+
+	// Auto Sniper
+	C_ADD_VARIABLE(float, fAutoRageMinDamage, 100.0f);
+	C_ADD_VARIABLE(bool, bAutoUseMultipoint, false);
+	C_ADD_VARIABLE(float, fAutoMultipointScale, 1.0f);
+	C_ADD_VARIABLE(int, iAutoHitchanceRange, 80);
+	C_ADD_VARIABLE(bool, bAutoSeeAngles, false);
+	C_ADD_VARIABLE(bool, bAutoResolver, true);
+	C_ADD_VARIABLE(bool, bAutoSniperAutoDuck, false);
+	C_ADD_VARIABLE(bool, bAutoSniperAutoStop, false);
+	C_ADD_VARIABLE_VECTOR(bool, HITBOXES_ALL, vAutoHitboxes, false);
+
+
+	//C_ADD_VARIABLE(WeaponConfig[], weaponConfigs, {});
 	// trigger
 	C_ADD_VARIABLE(bool, bTrigger, false);
 	C_ADD_VARIABLE(int, iTriggerKey, 0);
@@ -103,7 +238,7 @@ struct Variables_t
 	#pragma endregion
 
 	#pragma region variables_visuals
-	C_ADD_VARIABLE(bool, bEsp, false);
+	C_ADD_VARIABLE(bool, bEsp, true);
 
 	// main
 	C_ADD_VARIABLE(bool, bEspMain, false);
@@ -175,6 +310,7 @@ struct Variables_t
 	C_ADD_VARIABLE(bool, bEspChamsViewModel, false);
 
 	C_ADD_VARIABLE(bool, bEspChamsXQZ, false);
+	C_ADD_VARIABLE(bool, bEspChamsDesync, false);
 	C_ADD_VARIABLE(bool, bEspChamsDisableOcclusion, false);
 	C_ADD_VARIABLE(int, iEspChamsPlayer, static_cast<int>(EVisualsPlayersChams::COVERED));
 	C_ADD_VARIABLE(int, iEspChamsViewModel, static_cast<int>(EVisualsViewModelChams::WIREFRAME));
@@ -186,18 +322,24 @@ struct Variables_t
 	C_ADD_VARIABLE(Color, colEspChamsViewModelAdditional, Color(0, 0, 255, 255));
 
 	// world
-	C_ADD_VARIABLE(bool, bWorld, false);
+	C_ADD_VARIABLE(bool, bWorld, true);
 	C_ADD_VARIABLE(bool, bWorldNightMode, false);
+	C_ADD_VARIABLE(bool, bWorldChangeSkybox, false);
 	C_ADD_VARIABLE(int, iWorldMaxFlash, 100);
 	C_ADD_VARIABLE(int, iWorldThirdPersonKey, 0);
+	C_ADD_VARIABLE(int, iWorldSkyType, 0);
 	C_ADD_VARIABLE(float, flWorldThirdPersonOffset, 150.f);
+	C_ADD_VARIABLE(bool, bWorldFullbright, false)
 	C_ADD_VARIABLE_VECTOR(bool, REMOVAL_MAX, vecWorldRemovals, false);
 
 	// on-screen
-	C_ADD_VARIABLE(bool, bScreen, false);
+	C_ADD_VARIABLE(bool, bScreen, true);
 	C_ADD_VARIABLE(float, flScreenCameraFOV, 0.f);
 	C_ADD_VARIABLE(float, flScreenViewModelFOV, 0.f);
+	C_ADD_VARIABLE(float, flScopedFov, 90.f);
+	C_ADD_VARIABLE(bool, bScreenOverwriteZoom, false);
 	C_ADD_VARIABLE(bool, bScreenHitMarker, false);
+	C_ADD_VARIABLE(bool, bCrosshairAlwaysOn, false);
 	C_ADD_VARIABLE(bool, bScreenHitMarkerDamage, false);
 	C_ADD_VARIABLE(bool, bScreenHitMarkerSound, false);
 	C_ADD_VARIABLE(float, flScreenHitMarkerTime, 1.0f);
@@ -220,15 +362,36 @@ struct Variables_t
 
 	// exploits
 	C_ADD_VARIABLE(bool, bMiscPingSpike, false);
+	C_ADD_VARIABLE(bool, bMiscSvCheat, false);
+	C_ADD_VARIABLE(bool, bMiscAntiCrash, false);
 	C_ADD_VARIABLE(float, flMiscLatencyFactor, 0.4f);
 	C_ADD_VARIABLE(bool, bMiscRevealRanks, false);
 	C_ADD_VARIABLE(bool, bMiscUnlockInventory, false);
+	C_ADD_VARIABLE(bool, bNoRecoilHax, false);
+	C_ADD_VARIABLE(bool, bMiscHiddenCVars, false);
+	C_ADD_VARIABLE(bool, bMiscBacktrack, false);
 	C_ADD_VARIABLE(bool, bMiscAntiUntrusted, true);
+	// Supa Misc
+	C_ADD_VARIABLE(std::string, sClanTagText, "catware.dev");
+	C_ADD_VARIABLE(bool, bMiscSpectatorList, false);
+	C_ADD_VARIABLE(bool, bShowBulletImpacts, false);
+	C_ADD_VARIABLE(bool, bShowSpread, false);
+	C_ADD_VARIABLE(bool, bMiscDoClantag, false);
+	C_ADD_VARIABLE(bool, bMiscDoDomToretto, false);
 	#pragma endregion
 
 	#pragma region variables_menu
-	C_ADD_VARIABLE(int, iMenuKey, VK_HOME);
+	C_ADD_VARIABLE(int, iMenuKey, VK_INSERT);
 	C_ADD_VARIABLE(int, iPanicKey, VK_END);
+	C_ADD_VARIABLE(int, iOpenTab, 0);
+	C_ADD_VARIABLE(int, iOpenEspTab, 0);
+	C_ADD_VARIABLE(int, iWidthSize, 580);
+	C_ADD_VARIABLE(int, iHeightSize, 630);
+	//C_ADD_VARIABLE(ImVec2, ivSpectatorPos, ImVec2(C::GetScreenSize().x / 2, 200));
+	C_ADD_VARIABLE(bool, bShowWatermark, true);
+	C_ADD_VARIABLE(bool, bShowSpectators, false);
+	C_ADD_VARIABLE(Color, colMenuColor, Color(180, 197, 213, 255));
+	C_ADD_VARIABLE(Color, colFovCircle, Color(255, 255, 255, 80));
 	#pragma endregion
 };
 

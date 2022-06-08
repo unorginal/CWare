@@ -1,4 +1,4 @@
-#include "autowall.h"
+﻿#include "autowall.h"
 
 // used: angle/vector calculations
 #include "../utilities/math.h"
@@ -154,7 +154,6 @@ void CAutoWall::ClipTraceToPlayers(const Vector& vecAbsStart, const Vector& vecA
 bool CAutoWall::TraceToExit(Trace_t& enterTrace, Trace_t& exitTrace, const Vector& vecPosition, const Vector& vecDirection, const CBaseEntity* pClipPlayer)
 {
 	// @ida tracetoexit: client.dll @ 55 8B EC 83 EC 4C F3
-	// server.dll @ 55 8B EC 83 EC 4C F3 0F 10 75
 
 	float flDistance = 0.0f;
 	int iStartContents = 0;
@@ -180,7 +179,7 @@ bool CAutoWall::TraceToExit(Trace_t& enterTrace, Trace_t& exitTrace, const Vecto
 			// trace ray to world
 			Ray_t rayWorld(vecStart, vecEnd);
 			I::EngineTrace->TraceRay(rayWorld, MASK_SHOT_HULL | CONTENTS_HITBOX, nullptr, &exitTrace);
-			
+
 			if (static CConVar* sv_clip_penetration_traces_to_players = I::ConVar->FindVar(XorStr("sv_clip_penetration_traces_to_players")); sv_clip_penetration_traces_to_players != nullptr && sv_clip_penetration_traces_to_players->GetBool())
 			{
 				CTraceFilter filter(pClipPlayer);
@@ -249,21 +248,19 @@ bool CAutoWall::HandleBulletPenetration(CBaseEntity* pLocal, const CCSWeaponData
 	const float flPenetrateDamage = ff_damage_bullet_penetration->GetFloat();
 
 	const MaterialHandle_t hEnterMaterial = pEnterSurfaceData->game.hMaterial;
-
-	if (data.iPenetrateCount == 0 && hEnterMaterial != CHAR_TEX_GRATE && hEnterMaterial != CHAR_TEX_GLASS && !(data.enterTrace.surface.uFlags & SURF_NODRAW))
-		return false;
-
-	if (pWeaponData->flPenetration <= 0.0f || data.iPenetrateCount <= 0)
-		return false;
+	const float flEnterPenetrationModifier = pEnterSurfaceData->game.flPenetrationModifier;
+	const bool bIsSolidSurf = ((data.enterTrace.iContents >> 3) & CONTENTS_SOLID);
+	const bool bIsLightSurf = ((data.enterTrace.surface.uFlags >> 7) & SURF_LIGHT);
 
 	Trace_t exitTrace = { };
-	if (!TraceToExit(data.enterTrace, exitTrace, data.enterTrace.vecEnd, data.vecDirection, pLocal) && !(I::EngineTrace->GetPointContents(data.enterTrace.vecEnd, MASK_SHOT_HULL, nullptr) & MASK_SHOT_HULL))
+	if (data.iPenetrateCount <= 0 ||
+		(!data.iPenetrateCount && !bIsLightSurf && !bIsSolidSurf && hEnterMaterial != CHAR_TEX_GRATE && hEnterMaterial != CHAR_TEX_GLASS) ||
+		(pWeaponData->flPenetration <= 0.0f) ||
+		(!TraceToExit(data.enterTrace, exitTrace, data.enterTrace.vecEnd, data.vecDirection, pLocal) && !(I::EngineTrace->GetPointContents(data.enterTrace.vecEnd, MASK_SHOT_HULL, nullptr) & MASK_SHOT_HULL)))
 		return false;
 
 	const surfacedata_t* pExitSurfaceData = I::PhysicsProps->GetSurfaceData(exitTrace.surface.nSurfaceProps);
 	const MaterialHandle_t hExitMaterial = pExitSurfaceData->game.hMaterial;
-
-	const float flEnterPenetrationModifier = pEnterSurfaceData->game.flPenetrationModifier;
 	const float flExitPenetrationModifier = pExitSurfaceData->game.flPenetrationModifier;
 
 	float flDamageLostModifier = 0.16f;
@@ -274,18 +271,18 @@ bool CAutoWall::HandleBulletPenetration(CBaseEntity* pLocal, const CCSWeaponData
 		flDamageLostModifier = 0.05f;
 		flPenetrationModifier = 3.0f;
 	}
-	else if (((data.enterTrace.iContents >> 3) & CONTENTS_SOLID) || ((data.enterTrace.surface.uFlags >> 7) & SURF_LIGHT))
+	else if (bIsSolidSurf || bIsLightSurf)
 	{
 		flDamageLostModifier = 0.16f;
 		flPenetrationModifier = 1.0f;
 	}
-	else if (hEnterMaterial == CHAR_TEX_FLESH && flReductionDamage == 0.0f && data.enterTrace.pHitEntity != nullptr && data.enterTrace.pHitEntity->IsPlayer() && (pLocal->GetTeam() == data.enterTrace.pHitEntity->GetTeam()))
+	else if (hEnterMaterial == CHAR_TEX_FLESH && (pLocal->GetTeam() == data.enterTrace.pHitEntity->GetTeam() && flReductionDamage == 0.0f))
 	{
 		if (flPenetrateDamage == 0.0f)
 			return false;
 
 		// shoot through teammates
-		flDamageLostModifier = flPenetrateDamage;
+		flDamageLostModifier = 0.16f;
 		flPenetrationModifier = flPenetrateDamage;
 	}
 	else
@@ -305,10 +302,10 @@ bool CAutoWall::HandleBulletPenetration(CBaseEntity* pLocal, const CCSWeaponData
 	const float flTraceDistance = (exitTrace.vecEnd - data.enterTrace.vecEnd).LengthSqr();
 
 	// penetration modifier
-	const float flModifier = (flPenetrationModifier > 0.0f ? 1.0f / flPenetrationModifier : 0.0f);
+	const float flModifier = std::max(0.0f, 1.0f / flPenetrationModifier);
 
 	// this calculates how much damage we've lost depending on thickness of the wall, our penetration, damage, and the modifiers set earlier
-	const float flLostDamage = (data.flCurrentDamage * flDamageLostModifier + (pWeaponData->flPenetration > 0.0f ? 3.75f / pWeaponData->flPenetration : 0.0f) * (flModifier * 3.0f)) + ((flModifier * flTraceDistance) / 24.0f);
+	const float flLostDamage = (data.flCurrentDamage * flDamageLostModifier + std::max(0.0f, 3.75f / pWeaponData->flPenetration) * (flModifier * 3.0f)) + ((flModifier * flTraceDistance) / 24.0f);
 
 	// did we loose too much damage?
 	if (flLostDamage > data.flCurrentDamage)
@@ -383,7 +380,7 @@ bool CAutoWall::SimulateFireBullet(CBaseEntity* pLocal, CBaseCombatWeapon* pWeap
 			return true;
 		}
 
-		// calling handlebulletpenetration here reduces our penetration �ounter, and if it returns true, we can't shoot through it
+		// calling handlebulletpenetration here reduces our penetration ñounter, and if it returns true, we can't shoot through it
 		if (!HandleBulletPenetration(pLocal, pWeaponData, pEnterSurfaceData, data))
 			break;
 	}

@@ -60,6 +60,7 @@ namespace U
 	void SendClanTag(const char* szClanTag, const char* szIdentifier);
 	/* load specified model before you will be in-game */
 	bool PrecacheModel(const char* szModelName);
+	void LoadSkyName(const char* name);
 	/* allocate client dll data for the object */
 	IClientNetworkable* CreateDLLEntity(int iEntity, EClassIndex nClassID, int nSerial);
 	/* returns icon of given index for custom font */
@@ -71,9 +72,9 @@ namespace U
 
 	// String
 	/* converts from unicode to ascii string */
-	std::string UnicodeToMultiByte(const std::wstring_view wszUnicode);
+	std::string UnicodeAscii(std::wstring_view wszUnicode);
 	/* converts from ascii to unicode string */
-	std::wstring MultiByteToUnicode(const std::string_view szAscii);
+	std::wstring AsciiUnicode(std::string_view szAscii);
 
 	// Links
 	/* event listener implementation */

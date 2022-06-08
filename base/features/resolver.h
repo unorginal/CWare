@@ -1,22 +1,32 @@
 #pragma once
-// used: winapi includes
 #include "../common.h"
-// used: event's hashing
-#include "../sdk/hash/fnv1a.h"
-// used: listener event function
-#include "../sdk/interfaces/igameeventmanager.h"
+#include "../utilities.h"
+#include "../global.h"
+// used: engine, globals, cliententitylist interfaces
+#include "../core/interfaces.h"
+#include "../utilities/math.h"
+#include "../features/lagcompensation.h"
+#include <deque>
+
 
 class CResolver : public CSingleton<CResolver>
 {
 public:
 	// Get
-	void Run();
+	void Run(CBaseEntity* pEntity);
 	/* check for hit */
+	void Log();
 	void Event(IGameEvent* pEvent, const FNV1A_t uNameHash);
-
-	// Info
+	void Resolve();
+	void Override();
+	int GetNumberOfTicksChoked(CBaseEntity* pEntity);
+	bool CheckTarget(CBaseEntity* pEntity, CBaseEntity* pLocal);
+	float GetMaxDesyncDelta(CCSGOPlayerAnimState* pAnimState);
+	std::string resolver_stage[65];
+	float resolved_abs_yaw;
 	/* angles, lby states, shots counters etc*/
 private:
 	// Main
 	/* ur resolver */
+
 };

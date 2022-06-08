@@ -10,10 +10,18 @@
 bool C::Setup(std::string_view szDefaultFileName)
 {
 	// create directory "settings" in "%userprofile%\documents\.qo0" if it incorrect or doesnt exists
+	
 	if (!std::filesystem::is_directory(fsPath))
 	{
 		std::filesystem::remove(fsPath);
 		if (!std::filesystem::create_directories(fsPath))
+			return false;
+	}
+
+	if (!std::filesystem::is_directory(GetWorkingPath().append(XorStr("Scripts"))))
+	{
+		std::filesystem::remove(GetWorkingPath().append(XorStr("Scripts")));
+		if (!std::filesystem::create_directories(GetWorkingPath().append(XorStr("Scripts"))))
 			return false;
 	}
 
@@ -35,8 +43,8 @@ bool C::Save(std::string_view szFileName)
 {
 	// check for extension if it is not our replace it
 	std::filesystem::path fsFilePath(szFileName);
-	if (fsFilePath.extension() != XorStr(".qo0"))
-		fsFilePath.replace_extension(XorStr(".qo0"));
+	if (fsFilePath.extension() != XorStr(".ctwr"))
+		fsFilePath.replace_extension(XorStr(".ctwr"));
 
 	// get utf-8 full path to config
 	const std::string szFile = std::filesystem::path(fsPath / fsFilePath).string();
@@ -144,7 +152,7 @@ bool C::Save(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(XorStr("[error] json save failed: {}"), ex.what());
+		L::Print(std::format(XorStr("[error] json save failed: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
@@ -164,12 +172,12 @@ bool C::Save(std::string_view szFileName)
 	catch (std::ofstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(XorStr("[error] failed to save configuration: {}"), ex.what());
+		L::Print(std::format(XorStr("[error] failed to save configuration: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(XorStr("saved configuration at: {}"), szFile);
+	L::Print(std::format(XorStr("saved configuration at: {}"), szFile));
 	return true;
 }
 
@@ -199,7 +207,7 @@ bool C::Load(std::string_view szFileName)
 	catch (std::ifstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(XorStr("[error] failed to load configuration: {}"), ex.what());
+		L::Print(std::format(XorStr("[error] failed to load configuration: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
@@ -302,21 +310,20 @@ bool C::Load(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(XorStr("[error] json load failed: {}"), ex.what());
+		L::Print(std::format(XorStr("[error] json load failed: {}"), ex.what()));
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(XorStr("loaded configuration at: {}"), szFile);
+	L::Print(std::format(XorStr("loaded configuration at: {}"), szFile));
 	return true;
 }
-
 void C::Remove(const std::size_t nIndex)
 {
 	const std::string& szFileName = vecFileNames.at(nIndex);
 
 	// unable delete default config
-	if (szFileName.compare(XorStr("default.qo0")) == 0)
+	if (szFileName.compare(XorStr("default.ctwr")) == 0)
 		return;
 
 	// get utf-8 full path to config
@@ -324,8 +331,8 @@ void C::Remove(const std::size_t nIndex)
 
 	if (std::filesystem::remove(szFile))
 	{
-		vecFileNames.erase(vecFileNames.cbegin() + static_cast<std::ptrdiff_t>(nIndex));
-		L::Print(XorStr("removed configuration at: {}"), szFile);
+		vecFileNames.erase(vecFileNames.cbegin() + nIndex);
+		L::Print(std::format(XorStr("removed configuration at: {}"), szFile));
 	}
 }
 
@@ -335,13 +342,14 @@ void C::Refresh()
 
 	for (const auto& it : std::filesystem::directory_iterator(fsPath))
     {
-		if (it.path().filename().extension() == XorStr(".qo0"))
+		if (it.path().filename().extension() == XorStr(".ctwr"))
 		{
-			L::Print(XorStr("found configuration file: {}"), it.path().filename().string());
+			L::Print(std::format(XorStr("found configuration file: {}"), it.path().filename().string()));
 			vecFileNames.push_back(it.path().filename().string());
 		}
     }
 }
+
 
 std::size_t C::GetVariableIndex(const FNV1A_t uNameHash)
 {
@@ -362,7 +370,7 @@ std::filesystem::path C::GetWorkingPath()
 	if (PWSTR pszPathToDocuments; SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0UL, nullptr, &pszPathToDocuments)))
 	{
 		fsWorkingPath.assign(pszPathToDocuments);
-		fsWorkingPath.append(XorStr(".qo0"));
+		fsWorkingPath.append(XorStr("catware"));
 		CoTaskMemFree(pszPathToDocuments);
 	}
 	

@@ -9,7 +9,6 @@
 #include "sdk/datatypes/usercmd.h"
 // used: baseentity
 #include "sdk/entity.h"
-
 /*
  * GLOBALS
  * globally defined values
@@ -19,11 +18,11 @@ namespace G
 {
 	// current module
 	inline HMODULE			hDll = nullptr;
-	// last localplayer pointer, being valid only after 'CreateMove()' call!
+	// last localplayer pointer
 	inline CBaseEntity*		pLocal = nullptr;
-	// last cmd pointer, being valid only during 'CreateMove()' call!
+	// last cmd pointer
 	inline CUserCmd*		pCmd = nullptr;
-	// last sendpacket state, read-only!
+	// last sendpacket state
 	inline bool				bSendPacket = true;
 	// last viewangles with allowed sendpacket
 	inline QAngle			angRealView = { };
@@ -31,4 +30,13 @@ namespace G
 	inline QAngle			angStep = { };
 	// camera origin
 	inline Vector			vecCamera = { };
+	inline int              MissedShots[65] = {};
+	// double tap shit
+	inline bool             Choke = false;
+	inline bool             Shifting = false;
+	inline int              SavedCommands = 0;
+	inline int              DoubleTapCooldown = 0;
+	inline QAngle           lastThirdPersonAngle = {};
+	inline QAngle           angFakeView = {};
+	inline const char*      lastSkybox = nullptr;
 }
