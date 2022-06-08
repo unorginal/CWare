@@ -1,0 +1,47 @@
+﻿  imgui_stdlib.cpp
+  imgui_impl_dx9.cpp
+  imgui.cpp
+  imgui_draw.cpp
+  imgui_freetype.cpp
+  imgui_widgets.cpp
+  imgui_impl_win32.cpp
+  config.cpp
+  hooks.cpp
+  interfaces.cpp
+  menu.cpp
+  netvar.cpp
+  engine.cpp
+  misc.cpp
+  prediction.cpp
+  LuaEngine.cpp
+  main.cpp
+  antiaim.cpp
+  autowall.cpp
+  lagcompensation.cpp
+  legitbot.cpp
+  ragebot.cpp
+  resolver.cpp
+  skinchanger.cpp
+  triggerbot.cpp
+  visuals.cpp
+  convar.cpp
+  entity.cpp
+  crc32.cpp
+  md5.cpp
+  utilities.cpp
+  draw.cpp
+  entitylistener.cpp
+  eventlistener.cpp
+  inputsystem.cpp
+  logging.cpp
+  math.cpp
+  memory.cpp
+  WeaponConfig.cpp
+  buffer.c
+  hde32.c
+  hde64.c
+  hook.c
+  trampoline.c
+LINK : warning LNK4098: defaultlib 'MSVCRT' conflicts with use of other libs; use /NODEFAULTLIB:library
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  catware.vcxproj -> C:\Users\User\Desktop\CWare\build\Release\base.dll
