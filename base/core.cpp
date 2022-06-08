@@ -32,20 +32,20 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		 * @note: serverbrowser.dll is last loaded module (u can seen it when debug)
 		 * here is check for all modules loaded
 		 */
-		while (GetModuleHandle(SERVERBROWSER_DLL) == nullptr)
+		while (MEM::GetModuleBaseHandle(SERVERBROWSER_DLL) == nullptr)
 			std::this_thread::sleep_for(200ms);
 
-		#ifdef DEBUG_CONSOLE
+#ifdef DEBUG_CONSOLE
 		// console logging
-		if (!L::Attach(XorStr("catware's developer-mode")))
+		if (!L::Attach(XorStr("qo0's base developer-mode")))
 			throw std::runtime_error(XorStr("failed to attach console"));
 
 		L::Print(XorStr("console opened"));
-		#else
+#else
 		// file logging
 		// @note: use std::ios::app instead std::ios::trunc to not clear every time
-		L::ofsFile.open(C::GetWorkingPath().append(XorStr("catware.log")), std::ios::out | std::ios::trunc);
-		#endif
+		L::ofsFile.open(C::GetWorkingPath().append(XorStr("qo0base.log")), std::ios::out | std::ios::trunc);
+#endif
 
 		// capture interfaces from game/steam (not always) modules
 		if (!I::Setup())
@@ -54,59 +54,62 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 		L::Print(XorStr("interfaces captured"));
 
 		// version check to know when u need to fix something
-		#ifdef DEBUG_CONSOLE
+#ifdef DEBUG_CONSOLE
 		if (strcmp(I::Engine->GetProductVersionString(), XorStr("1.37.7.6")) != 0)
 		{
 			L::PushConsoleColor(FOREGROUND_YELLOW);
-			L::Print(std::format(XorStr("[warning] version doesnt match! current cs:go version: {}"), I::Engine->GetProductVersionString()));
+			L::Print(XorStr("[warning] version doesnt match! current cs:go version: {}"), I::Engine->GetProductVersionString());
 			L::PopConsoleColor();
 		}
-		#endif
+#endif
 
 		/*
 		 * fill networkable variables map
 		 * dump received netvars to the file
 		 */
+		L::Print(XorStr("Netvar#PlsHelpMe"));
 		if (!CNetvarManager::Get().Setup(XorStr("netvars.ctwr")))
-			throw std::runtime_error(XorStr("failed to initialize netvars"));
-
-		L::Print(std::format(XorStr("found [{:d}] props in [{:d}] tables"), CNetvarManager::Get().iStoredProps, CNetvarManager::Get().iStoredTables));
+			L::Print(XorStr("#usuckplayboyshawttie"));
+			//throw std::runtime_error(XorStr("failed to initialize netvars"));
+			L::Print(XorStr("#weffewwfe"));
+		L::Print(XorStr("found [{:d}] props in [{:d}] tables"), CNetvarManager::Get().iStoredProps, CNetvarManager::Get().iStoredTables);
 
 		// export completed mathematics functions from game/steam (not always) modules
+		L::Print(XorStr("#mathies"));
 		if (!M::Setup())
 			throw std::runtime_error(XorStr("failed to get math exports"));
-
+		L::Print(XorStr("#math"));
 		L::Print(XorStr("math exports loaded"));
 
 		// replace window messages processor
 		if (!IPT::Setup())
 			throw std::runtime_error(XorStr("failed to set window messages processor"));
-
+		L::Print(XorStr("#input"));
 		L::Print(XorStr("inputsystem setup complete"));
 
-		#if 0
+#if 0
 		// start tracking entities
 		U::EntityListener.Setup();
 		L::Print(XorStr("entity listener initialized"));
-		#endif
+#endif
 
 		// start tracking specified events from vector
 		// @note: all events list: https://wiki.alliedmods.net/Counter-Strike:_Global_Offensive_Events
 		U::EventListener.Setup({ XorStr("player_hurt"), XorStr("round_prestart"), XorStr("round_freeze_end") });
 		L::Print(XorStr("events registered"));
-
+		L::Print(XorStr("#hookiepookie"));
 		// add our functionality in client functions
 		if (!H::Setup())
 			throw std::runtime_error(XorStr("failed initialize hooks"));
 
 		L::Print(XorStr("hooks setup complete"));
-
+		L::Print(XorStr("#hookiedookie"));
 		// add our functionality in networkable functions
 		if (!P::Setup())
 			throw std::runtime_error(XorStr("failed initialize proxies"));
 
 		L::Print(XorStr("proxies applied"));
-
+		L::Print(XorStr("#configie"));
 		// setup values to save/load cheat variables in/from files and load default configuration
 		if (!C::Setup(XorStr("default.ctwr")))
 		{
@@ -120,26 +123,25 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 
 		// show message about successful load in logs and in game console
 		L::PushConsoleColor(FOREGROUND_MAGENTA);
-		L::Print(XorStr("catware successfully loaded"));
+		L::Print(XorStr("qo0 base successfully loaded"));
 		L::PopConsoleColor();
 		I::GameConsole->Clear();
-		I::ConVar->ConsoleColorPrintf(Color(255, 50, 255, 255), XorStr("catware successfully loaded.\nbuild date: %s / %s\n"), __DATE__, __TIME__);
-		I::ConVar->ConsolePrintf(XorStr("CATWARE.DEV"));
+		I::ConVar->ConsoleColorPrintf(Color(255, 50, 255, 255), XorStr("catware base successfully loaded.\nbuild date: %s / %s\n"), __DATE__, __TIME__);
 	}
 	catch (const std::exception& ex)
 	{
 		// print error message
 		L::PushConsoleColor(FOREGROUND_INTENSE_RED);
-		L::Print(std::format(XorStr("[error] {}"), ex.what()));
+		L::Print(XorStr("[error] {}"), ex.what());
 		L::PopConsoleColor();
 
-		#ifdef _DEBUG
+#ifdef _DEBUG
 		// show error message window (or replace to your exception handler)
 		_RPT0(_CRT_ERROR, ex.what());
-		#else
+#else
 		// unload
 		FreeLibraryAndExitThread(static_cast<HMODULE>(lpParameter), EXIT_FAILURE);
-		#endif
+#endif
 	}
 
 	return 1UL;
@@ -147,12 +149,14 @@ DWORD WINAPI OnDllAttach(LPVOID lpParameter)
 
 DWORD WINAPI OnDllDetach(LPVOID lpParameter)
 {
+	// unload cheat if pressed specified key
 	while (!IPT::IsKeyReleased(C::Get<int>(Vars.iPanicKey)))
 		std::this_thread::sleep_for(500ms);
-	#if 0
+
+#if 0
 	// destroy entity listener
 	U::EntityListener.Destroy();
-	#endif
+#endif
 
 	// destroy events listener
 	U::EventListener.Destroy();
@@ -172,16 +176,16 @@ DWORD WINAPI OnDllDetach(LPVOID lpParameter)
 	// destroy render
 	D::Destroy();
 
-	#ifdef DEBUG_CONSOLE
+#ifdef DEBUG_CONSOLE
 	// detach console
 	L::Detach();
-	#else
+#else
 	// close logging output file
 	if (L::ofsFile.is_open())
 		L::ofsFile.close();
-	#endif
+#endif
 
-	 // free our library memory from process and exit from our thread
+	// free our library memory from process and exit from our thread
 	FreeLibraryAndExitThread((HMODULE)lpParameter, EXIT_SUCCESS);
 }
 
@@ -193,9 +197,9 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD dwReason, LPVOID lpReserved)
 		DisableThreadLibraryCalls(hModule);
 
 		// basic process check
-		if (GetModuleHandle(XorStr("csgo.exe")) == nullptr)
+		if (MEM::GetModuleBaseHandle(XorStr("csgo.exe")) == nullptr)
 		{
-			MessageBox(nullptr, XorStr("this cannot be injected in another process\nopen <csgo.exe> to inject"), XorStr("catware"), MB_OK);
+			MessageBox(nullptr, XorStr("this cannot be injected in another process\nopen <csgo.exe> to inject"), XorStr("qo0 base"), MB_OK);
 			return FALSE;
 		}
 

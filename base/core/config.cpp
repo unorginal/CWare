@@ -152,7 +152,7 @@ bool C::Save(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(std::format(XorStr("[error] json save failed: {}"), ex.what()));
+		L::Print(XorStr("[error] json save failed: {}"), ex.what());
 		L::PopConsoleColor();
 		return false;
 	}
@@ -172,12 +172,12 @@ bool C::Save(std::string_view szFileName)
 	catch (std::ofstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(std::format(XorStr("[error] failed to save configuration: {}"), ex.what()));
+		L::Print(XorStr("[error] failed to save configuration: {}"), ex.what());
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(std::format(XorStr("saved configuration at: {}"), szFile));
+	L::Print(XorStr("saved configuration at: {}"), szFile);
 	return true;
 }
 
@@ -207,7 +207,7 @@ bool C::Load(std::string_view szFileName)
 	catch (std::ifstream::failure& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(std::format(XorStr("[error] failed to load configuration: {}"), ex.what()));
+		L::Print(XorStr("[error] failed to load configuration: {}"), ex.what());
 		L::PopConsoleColor();
 		return false;
 	}
@@ -310,12 +310,12 @@ bool C::Load(std::string_view szFileName)
 	catch (const nlohmann::detail::exception& ex)
 	{
 		L::PushConsoleColor(FOREGROUND_RED);
-		L::Print(std::format(XorStr("[error] json load failed: {}"), ex.what()));
+		L::Print(XorStr("[error] json load failed: {}"), ex.what());
 		L::PopConsoleColor();
 		return false;
 	}
 
-	L::Print(std::format(XorStr("loaded configuration at: {}"), szFile));
+	L::Print(XorStr("loaded configuration at: {}"), szFile);
 	return true;
 }
 void C::Remove(const std::size_t nIndex)
@@ -331,8 +331,8 @@ void C::Remove(const std::size_t nIndex)
 
 	if (std::filesystem::remove(szFile))
 	{
-		vecFileNames.erase(vecFileNames.cbegin() + nIndex);
-		L::Print(std::format(XorStr("removed configuration at: {}"), szFile));
+		vecFileNames.erase(vecFileNames.cbegin() + static_cast<std::ptrdiff_t>(nIndex));
+		L::Print(XorStr("removed configuration at: {}"), szFile);
 	}
 }
 
@@ -344,8 +344,7 @@ void C::Refresh()
     {
 		if (it.path().filename().extension() == XorStr(".ctwr"))
 		{
-			L::Print(std::format(XorStr("found configuration file: {}"), it.path().filename().string()));
-			vecFileNames.push_back(it.path().filename().string());
+			L::Print(XorStr("found configuration file: {}"), it.path().filename().string());
 		}
     }
 }
@@ -370,9 +369,9 @@ std::filesystem::path C::GetWorkingPath()
 	if (PWSTR pszPathToDocuments; SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Documents, 0UL, nullptr, &pszPathToDocuments)))
 	{
 		fsWorkingPath.assign(pszPathToDocuments);
-		fsWorkingPath.append(XorStr("catware"));
+		fsWorkingPath.append(XorStr(".ctwr"));
 		CoTaskMemFree(pszPathToDocuments);
 	}
-	
+
 	return fsWorkingPath;
 }

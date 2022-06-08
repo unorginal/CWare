@@ -63,7 +63,7 @@ void CSpoofedConVar::Spoof()
 
 		CWrappedProtect protection = CWrappedProtect{ (LPVOID)pOriginalCVar->szName, 128UL, PAGE_READWRITE };
 		// rename the convar
-		strcpy(const_cast<char*>(pOriginalCVar->szName), szDummyName);
+		strcpy_s(const_cast<char*>(pOriginalCVar->szName), sizeof(szDummyName), szDummyName);
 
 		SetFlags(FCVAR_NONE);
 	}

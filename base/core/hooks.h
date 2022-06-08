@@ -9,6 +9,7 @@
 #include "interfaces.h"
 #ifndef FASTCALL
 #define FASTCALL __fastcall
+#define STDCALL __stdcall
 #endif
 
 /*
@@ -25,6 +26,8 @@ namespace VTABLE
 		ENDSCENE = 42,
 		RESETEX = 132,
 
+		ALLOCKEYVALUESMEMORY = 1,
+		CREATEMOVE = 22,
 		/* client table */
 		FRAMESTAGENOTIFY = 37,
 
@@ -34,7 +37,6 @@ namespace VTABLE
 		/* clientmode table */
 		OVERRIDEVIEW = 18,
 		OVERRIDEMOUSEINPUT = 23,
-		CREATEMOVE = 24,
 		GETVIEWMODELFOV = 35,
 		DOPOSTSCREENEFFECTS = 44,
 
@@ -98,10 +100,11 @@ namespace DTR
 {
 	inline CDetourHook Reset;
 	inline CDetourHook EndScene;
+	inline CDetourHook AllocKeyValuesMemory;
+	inline CDetourHook CreateMoveProxy;
 	inline CDetourHook FrameStageNotify;
 	inline CDetourHook OverrideView;
 	inline CDetourHook OverrideMouseInput;
-	inline CDetourHook CreateMove;
 	inline CDetourHook SendNetMsg;
 	inline CDetourHook SendDatagram;
 	inline CDetourHook GetViewModelFOV;
@@ -142,7 +145,8 @@ namespace H
 	/* [type][call]		hk[name] (args...) */
 	long	D3DAPI		hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	long	D3DAPI		hkEndScene(IDirect3DDevice9* pDevice);
-	bool	FASTCALL	hkCreateMove(IClientModeShared* thisptr, int edx, float flInputSampleTime, CUserCmd* pCmd);
+	void*   FASTCALL    hkAllocKeyValuesMemory(IKeyValuesSystem* thisptr, int edx, int iSize);
+	void FASTCALL hkCreateMoveProxy(IBaseClientDll* thisptr, int edx, int nSequenceNumber, float flInputSampleFrametime, bool bIsActive);
 	void	FASTCALL	hkPaintTraverse(ISurface* thisptr, int edx, unsigned int uPanel, bool bForceRepaint, bool bForce);
 	void	FASTCALL	hkPlaySound(ISurface* thisptr, int edx, const char* szFileName);
 	void	FASTCALL	hkLockCursor(ISurface* thisptr, int edx);

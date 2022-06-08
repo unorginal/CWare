@@ -17,6 +17,7 @@ std::uintptr_t* U::FindHudElement(const char* szName)
 
 	using FindHudElementFn = std::uintptr_t*(__thiscall*)(void*, const char*);
 	static auto oFindHudElement = reinterpret_cast<FindHudElementFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 53 8B 5D 08 56 57 8B F9 33 F6 39 77 28"))); // @xref: "[%d] Could not find Hud Element: %s\n"
+	assert(oFindHudElement != nullptr);
 	return oFindHudElement(pHud, szName);
 }
 #pragma endregion
@@ -26,7 +27,7 @@ void U::ForceFullUpdate()
 {
 	using ClearHudWeaponIconFn = int(__thiscall*)(void*, int);
 	static auto oClearHudWeaponIcon = reinterpret_cast<ClearHudWeaponIconFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 51 53 56 8B 75 08 8B D9 57 6B"))); // @xref: "WeaponIcon--itemcount"
-
+	assert(oClearHudWeaponIcon != nullptr);
 	if (oClearHudWeaponIcon != nullptr)
 	{
 		// get hud weapons
@@ -45,6 +46,7 @@ bool U::LineGoesThroughSmoke(const Vector& vecStart, const Vector& vecEnd, const
 {
 	using LineGoesThroughSmokeFn = bool(__cdecl*)(Vector, Vector, bool);
 	static auto oLineGoesThroughSmoke = reinterpret_cast<LineGoesThroughSmokeFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 83 EC 08 8B 15 ? ? ? ? 0F 57 C0"))); // @xref: "effects/overlaysmoke"
+	assert(oLineGoesThroughSmoke != nullptr);
 	return oLineGoesThroughSmoke(vecStart, vecEnd, bGrenadeBloat);
 }
 
@@ -52,9 +54,8 @@ void U::SetLocalPlayerReady()
 {
 	using SetLocalPlayerReadyFn = void(__stdcall*)(const char*);
 	static auto oSetLocalPlayerReady = reinterpret_cast<SetLocalPlayerReadyFn>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 83 E4 F8 8B 4D 08 BA ? ? ? ? E8 ? ? ? ? 85 C0 75 12"))); // @xref: "deffered"
-
-	if (oSetLocalPlayerReady != nullptr)
-		oSetLocalPlayerReady("");
+	assert(oSetLocalPlayerReady != nullptr);
+	oSetLocalPlayerReady("");
 }
 
 void U::SendName(const char* szName)
@@ -70,9 +71,8 @@ void U::SendClanTag(const char* szClanTag, const char* szIdentifier)
 {
 	using SendClanTagFn = void(__fastcall*)(const char*, const char*);
 	static auto oSendClanTag = reinterpret_cast<SendClanTagFn>(MEM::FindPattern(ENGINE_DLL, XorStr("53 56 57 8B DA 8B F9 FF 15"))); // @xref: "ClanTagChanged"
-
-	if (oSendClanTag != nullptr)
-		oSendClanTag(szClanTag, szIdentifier);
+	assert(oSendClanTag != nullptr);
+	oSendClanTag(szClanTag, szIdentifier);
 }
 
 void U::LoadSkyName(const char* name) {
@@ -289,7 +289,7 @@ void U::FlashWindow(HWND pWindow)
 #pragma endregion
 
 #pragma region utilities_string
-std::string U::UnicodeAscii(std::wstring_view wszUnicode)
+std::string U::UnicodeToMultiByte(const std::wstring_view wszUnicode)
 {
 	const int nLength = WideCharToMultiByte(CP_UTF8, 0UL, wszUnicode.data(), wszUnicode.length(), nullptr, 0, nullptr, nullptr);
 	std::string szOutput = { };
@@ -303,7 +303,7 @@ std::string U::UnicodeAscii(std::wstring_view wszUnicode)
 	return szOutput;
 }
 
-std::wstring U::AsciiUnicode(std::string_view szAscii)
+std::wstring U::MultiByteToUnicode(const std::string_view szAscii)
 {
 	const int nLength = MultiByteToWideChar(CP_UTF8, 0UL, szAscii.data(), szAscii.length(), nullptr, 0);
 	std::wstring wszOutput = { };

@@ -3,6 +3,7 @@
 #include "./utilities.h"
 #include "./core/interfaces.h"
 #include "./core/variables.h"
+#include "LuaStructs.h"
 // Functions
 int Functions::lua_setCatwareClantag(lua_State* L) {
 	const char* clantag = lua_tostring(L, 1);

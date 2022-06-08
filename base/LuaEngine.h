@@ -1,8 +1,7 @@
 #include <iostream>
 #include <string>
+#include <vector>
 #include "../dependencies/Lua542/include/lua.hpp"
-#include "LuaStructs.h"
-#include <string>
 
 struct SavedLuaScript {
 	lua_State* L;

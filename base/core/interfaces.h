@@ -42,13 +42,14 @@
 #include "../sdk/interfaces/ivmodelrender.h"
 #include "../sdk/interfaces/ivrenderview.h"
 #include "../sdk/interfaces/iweaponsystem.h"
+#include "../sdk/interfaces/ikeyvaluessystem.h"
 
 class CInterfaceRegister
 {
 public:
 	InstantiateInterfaceFn	pCreateFn;		//0x0
-	const char*				szName;			//0x4
-	CInterfaceRegister*		pNext;			//0x8
+	const char* szName;			//0x4
+	CInterfaceRegister* pNext;			//0x8
 };
 
 /*
@@ -62,50 +63,52 @@ namespace I
 	bool Setup();
 	/* search and returns a pointer of specific interface given */
 	template <typename T>
-	T* Capture(const char* szModule, std::string_view szInterface);
+	T* Capture(const std::string_view szModuleName, const std::string_view szInterface);
+
 	// Values
-	inline IBaseClientDll*			Client;
-	inline IClientEntityList*		ClientEntityList;
-	inline IEffects*				Effects;
-	inline IGameMovement*			GameMovement;
-	inline IMoveHelper*				MoveHelper;
-	inline IPrediction*				Prediction;
-	inline IGameConsole*			GameConsole;
-	inline IGameUI*					GameUI;
-	inline IEngineClient*			Engine;
-	inline IEngineVGui*				EngineVGui;
-	inline IEngineTrace*			EngineTrace;
-	inline IEngineSound*			EngineSound;
-	inline INetworkContainer*		NetworkContainer;
-	inline IGameEventManager2*		GameEvent;
-	inline IVRenderView*			RenderView;
-	inline IVDebugOverlay*			DebugOverlay;
-	inline IVEngineEffects*			EngineEffects;
-	inline IVModelInfo*				ModelInfo;
-	inline IVModelRender*			ModelRender;
-	inline IMDLCache*				MDLCache;
-	inline IStudioRender*			StudioRender;
-	inline IConVar*					ConVar;
-	inline IPhysicsSurfaceProps*	PhysicsProps;
-	inline IMaterialSystem*			MaterialSystem;
-	inline ISurface*				Surface;
-	inline IVPanel*					Panel;
-	inline IInputSystem*			InputSystem;
-	inline ILocalize*				Localize;
-	inline IMatchFramework*			MatchFramework;
-	inline IGameTypes*				GameTypes;
-	inline IServerGameDLL*			Server;
-	inline ISteamClient*			SteamClient;
-	inline ISteamUser*				SteamUser;
-	inline ISteamGameCoordinator*	SteamGameCoordinator;
-	inline IClientModeShared*		ClientMode;
-	inline IGlobalVarsBase*			Globals;
-	inline IMemAlloc*				MemAlloc;
-	inline IDirect3DDevice9*		DirectDevice;
-	inline IViewRender*				ViewRender;
-	inline IViewRenderBeams*		ViewRenderBeams;
-	inline IInput*					Input;
-	inline IClientState*			ClientState;
-	inline IWeaponSystem*			WeaponSystem;
-	inline IGlowObjectManager*		GlowManager;
+	inline IBaseClientDll* Client;
+	inline IClientEntityList* ClientEntityList;
+	inline IEffects* Effects;
+	inline IGameMovement* GameMovement;
+	inline IMoveHelper* MoveHelper;
+	inline IPrediction* Prediction;
+	inline IGameConsole* GameConsole;
+	inline IGameUI* GameUI;
+	inline IEngineClient* Engine;
+	inline IEngineVGui* EngineVGui;
+	inline IEngineTrace* EngineTrace;
+	inline IEngineSound* EngineSound;
+	inline INetworkContainer* NetworkContainer;
+	inline IGameEventManager2* GameEvent;
+	inline IVRenderView* RenderView;
+	inline IVDebugOverlay* DebugOverlay;
+	inline IVEngineEffects* EngineEffects;
+	inline IVModelInfo* ModelInfo;
+	inline IVModelRender* ModelRender;
+	inline IMDLCache* MDLCache;
+	inline IStudioRender* StudioRender;
+	inline IConVar* ConVar;
+	inline IPhysicsSurfaceProps* PhysicsProps;
+	inline IMaterialSystem* MaterialSystem;
+	inline ISurface* Surface;
+	inline IVPanel* Panel;
+	inline IInputSystem* InputSystem;
+	inline ILocalize* Localize;
+	inline IMatchFramework* MatchFramework;
+	inline IGameTypes* GameTypes;
+	inline IServerGameDLL* Server;
+	inline ISteamClient* SteamClient;
+	inline ISteamUser* SteamUser;
+	inline ISteamGameCoordinator* SteamGameCoordinator;
+	inline IClientModeShared* ClientMode;
+	inline IGlobalVarsBase* Globals;
+	inline IMemAlloc* MemAlloc;
+	inline IKeyValuesSystem* KeyValuesSystem;
+	inline IDirect3DDevice9* DirectDevice;
+	inline IViewRender* ViewRender;
+	inline IViewRenderBeams* ViewRenderBeams;
+	inline IInput* Input;
+	inline IClientState* ClientState;
+	inline IWeaponSystem* WeaponSystem;
+	inline IGlowObjectManager* GlowManager;
 }
