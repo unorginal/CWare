@@ -797,7 +797,7 @@ CODE
 #define IMGUI_DEFINE_MATH_OPERATORS
 #endif
 #include "imgui_internal.h"
-
+#include "../../base/utilities/draw.h"
 #include <ctype.h>      // toupper
 #include <stdio.h>      // vsnprintf, sscanf, printf
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
@@ -4671,10 +4671,80 @@ bool ImGui::BeginChildEx(const char* name, ImGuiID id, const ImVec2& size_arg, b
     return ret;
 }
 
+bool ImGui::BeginChildExWithColor(const char* name, const char* label, ImGuiID id, const ImVec2& size_arg, bool border, ImU32 color, ImGuiWindowFlags flags)
+{
+    ImGuiContext& g = *GImGui;
+    ImGuiWindow* parent_window = g.CurrentWindow;
+
+    flags |= ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_ChildWindow;
+    flags |= (parent_window->Flags & ImGuiWindowFlags_NoMove);  // Inherit the NoMove flag
+
+    // Size
+    const ImVec2 content_avail = GetContentRegionAvail();
+    ImVec2 size = ImFloor(size_arg);
+    const int auto_fit_axises = ((size.x == 0.0f) ? (1 << ImGuiAxis_X) : 0x00) | ((size.y == 0.0f) ? (1 << ImGuiAxis_Y) : 0x00);
+    if (size.x <= 0.0f)
+        size.x = ImMax(content_avail.x + size.x, 4.0f); // Arbitrary minimum child size (0.0f causing too much issues)
+    if (size.y <= 0.0f)
+        size.y = ImMax(content_avail.y + size.y, 4.0f);
+    SetNextWindowSize(size);
+
+    // Build up name. If you need to append to a same child from multiple location in the ID stack, use BeginChild(ImGuiID id) with a stable value.
+    char title[256];
+    if (name)
+        ImFormatString(title, IM_ARRAYSIZE(title), "%s/%s_%08X", parent_window->Name, name, id);
+    else
+        ImFormatString(title, IM_ARRAYSIZE(title), "%s/%08X", parent_window->Name, id);
+
+    const float backup_border_size = g.Style.ChildBorderSize;
+    if (!border)
+        g.Style.ChildBorderSize = 0.0f;
+    bool ret = Begin(title, NULL, flags);
+    g.Style.ChildBorderSize = backup_border_size;
+
+    ImGuiWindow* child_window = g.CurrentWindow;
+    g.Style.Colors[ImGuiCol_WindowBg] = ImVec4(0.1764f, 0.1882f, 0.2156f, 1.0f);
+    child_window->ChildId = id;
+    child_window->AutoFitChildAxises = (ImS8)auto_fit_axises;
+    ImDrawList* drawList = parent_window->DrawList;
+    ImVec2 pos = ImGui::GetWindowPos();
+    const float width = ImGui::GetWindowWidth();
+    ImGui::PopFont();
+    g.Style.WindowPadding = ImVec2(0, 0);
+    drawList->AddRectFilled(ImVec2(pos.x, pos.y), ImVec2(pos.x + width, pos.y + 40), ImGui::ColorConvertFloat4ToU32(ImVec4(0.1764f, 0.1882f, 0.2156f, 1.0f)));
+    drawList->AddRectFilled(ImVec2(pos.x, pos.y + 40), ImVec2(pos.x + width, pos.y +size.y), ImGui::ColorConvertFloat4ToU32(ImVec4(0.19f, 0.2f, 0.23f, 1.0f)));
+    ImGui::PushFont(F::ArialBold);
+    ImGui::Text(label);
+    ImGui::PopFont();
+    g.Style.WindowPadding = ImVec2(15, 15);
+    ImGui::PushFont(F::Tahoma);
+    ImGui::Spacing();
+    ImGui::Spacing();
+    // Set the cursor to handle case where the user called SetNextWindowPos()+BeginChild() manually.
+    // While this is not really documented/defined, it seems that the expected thing to do.
+    if (child_window->BeginCount == 1)
+        parent_window->DC.CursorPos = child_window->Pos;
+
+    // Process navigation-in immediately so NavInit can run on first frame
+    if (g.NavActivateId == id && !(flags & ImGuiWindowFlags_NavFlattened) && (child_window->DC.NavLayerActiveMask != 0 || child_window->DC.NavHasScroll))
+    {
+        FocusWindow(child_window);
+        NavInitWindow(child_window, false);
+        SetActiveID(id + 1, child_window); // Steal ActiveId with a dummy id so that key-press won't activate child item
+        g.ActiveIdSource = ImGuiInputSource_Nav;
+    }
+    return ret;
+}
+
 bool ImGui::BeginChild(const char* str_id, const ImVec2& size_arg, bool border, ImGuiWindowFlags extra_flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
     return BeginChildEx(str_id, window->GetID(str_id), size_arg, border, extra_flags);
+}
+bool ImGui::BeginChildWithColor(const char* str_id, const char* name, const ImVec2& size_arg, bool border, ImU32 Color, ImGuiWindowFlags extra_flags)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    return BeginChildExWithColor(str_id, name, window->GetID(str_id), size_arg, border, Color, extra_flags);
 }
 
 bool ImGui::BeginChild(ImGuiID id, const ImVec2& size_arg, bool border, ImGuiWindowFlags extra_flags)

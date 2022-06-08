@@ -1,6 +1,4 @@
-﻿// used: _ReturnAddress, _AddressOfReturnAddress
-#include <intrin.h>
-// used: std::array
+﻿// used: std::array
 #include <array>
 
 #include "hooks.h"
@@ -18,8 +16,8 @@
 #include "../utilities.h"
 // used: render windows
 #include "menu.h"
-
 /* features */
+#include <iostream>
 #include "../features/lagcompensation.h"
 #include "../features/prediction.h"
 #include "../features/ragebot.h"
@@ -29,10 +27,11 @@
 #include "../features/visuals.h"
 #include "../features/misc.h"
 #include "../features/skinchanger.h"
-
-static constexpr std::array<const char*, 3U> arrSmokeMaterials =
+#include "../features/resolver.h"
+#include <iostream>
+static constexpr std::array<const char*, 4U> arrSmokeMaterials =
 {
-	//"particle/vistasmokev1/vistasmokev1_fire",  // to look cool fresh fashionable yo :sunglasses: (if u wont be cool just uncomment this)
+	"particle/vistasmokev1/vistasmokev1_fire",  // to look cool fresh fashionable yo :sunglasses: (if u wont be cool just uncomment this)
 	"particle/vistasmokev1/vistasmokev1_smokegrenade",
 	"particle/vistasmokev1/vistasmokev1_emods",
 	"particle/vistasmokev1/vistasmokev1_emods_impactdust",
@@ -41,8 +40,6 @@ static constexpr std::array<const char*, 3U> arrSmokeMaterials =
 #pragma region hooks_get
 bool H::Setup()
 {
-	SEH_START
-
 	if (MH_Initialize() != MH_OK)
 		throw std::runtime_error(XorStr("failed initialize minhook"));
 
@@ -52,12 +49,6 @@ bool H::Setup()
 	if (!DTR::EndScene.Create(MEM::GetVFunc(I::DirectDevice, VTABLE::ENDSCENE), &hkEndScene))
 		return false;
 
-	if (!DTR::AllocKeyValuesMemory.Create(MEM::GetVFunc(I::KeyValuesSystem, VTABLE::ALLOCKEYVALUESMEMORY), &hkAllocKeyValuesMemory))
-		return false;
-
-	if (!DTR::CreateMoveProxy.Create(MEM::GetVFunc(I::Client, VTABLE::CREATEMOVE), &hkCreateMoveProxy))
-		return false;
-
 	if (!DTR::FrameStageNotify.Create(MEM::GetVFunc(I::Client, VTABLE::FRAMESTAGENOTIFY), &hkFrameStageNotify))
 		return false;
 
@@ -65,10 +56,12 @@ bool H::Setup()
 		return false;
 
 	// @note: be useful for mouse event aimbot
-	#if 0
+	/*
 	if (!DTR::OverrideMouseInput.Replace(MEM::GetVFunc(I::ClientMode, VTABLE::OVERRIDEMOUSEINPUT), &hkOverrideMouseInput))
 		return false;
-	#endif
+	*/
+	if (!DTR::CreateMove.Create(MEM::GetVFunc(I::ClientMode, VTABLE::CREATEMOVE), &hkCreateMove))
+		return false;
 
 	if (!DTR::GetViewModelFOV.Create(MEM::GetVFunc(I::ClientMode, VTABLE::GETVIEWMODELFOV), &hkGetViewModelFOV))
 		return false;
@@ -111,17 +104,66 @@ bool H::Setup()
 	if (!DTR::SvCheatsGetBool.Create(MEM::GetVFunc(sv_cheats, VTABLE::GETBOOL), &hkSvCheatsGetBool))
 		return false;
 
-	return true;
+	/*if (!DTR::CLMove.Create(reinterpret_cast<void*>(MEM::FindPattern(ENGINE_DLL, XorStr("55 8b ec 81 ec ? ? ? ? 53 56 57 8b 3d ? ? ? ? 8a f9"))), &hkCLMove))
+		return false;
 
-	SEH_END
-	
-	return false;
+	if (!DTR::IsHLTV.Create(MEM::GetVFunc(I::Engine, VTABLE::HLTV), &hkIsHLTV))
+		return false;
+
+	if (!DTR::DoProceduralFootPlant.Create(reinterpret_cast<void*>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 83 E4 F0 83 EC 78 56 8B F1 57 8B 56 60 85 D2 0F 84 ? ? ? ? 80 BE ? ? ? ? ? 0F 84 ? ? ? ? F3 0F 10 86 ? ? ? ? 0F 2F 05 ? ? ? ? 0F 82 ? ? ? ? 80 BE ? ? ? ? ? 0F 85 ? ? ? ? 8B CA"))), &hkDoProceduralFootPlant))
+		return false;
+
+	if (!DTR::ShouldSkipAnimationFrame.Create(reinterpret_cast<bool*>(MEM::FindPattern(CLIENT_DLL, XorStr("57 8B F9 8B 07 8B 80 ? ? ? ? FF D0 84 C0 75 02"))), &hkShouldSkipAnimationFrame))
+		return false;
+
+	if (!DTR::BuildTransformations.Create(reinterpret_cast<bool*>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 56 8B 75 18 57"))), hkBuildTransformations))
+		return false;
+
+	if (!DTR::CheckForSequenceChange.Create(reinterpret_cast<bool*>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 51 53 8B 5D 08 56 8B F1 57 85"))), hkCheckForSequenceChange))
+		return false;
+	//if (!DTR::DoBoneProcessing.Create(reinterpret_cast<void*>(MEM::FindPattern(CLIENT_DLL, XorStr("55 8B EC 83 E4 F0 B8 ? ? ? ? E8 ? ? ? ? 56 57 8B F9 8B 0D ? ? ? ? 89 7C 24 28 8B 81 ? ? ? ? 89 44 24 50 85 C0 74 26 80 3D ? ? ? ? ? BA ? ? ? ? 6A 04 6A 00 B8 ? ? ? ? 0F 45 C2 50"))), &hkDoBoneProcessing))
+		//return false;
+
+	return true;*/
 }
 
 void H::Restore()
 {
+	DTR::Reset.Remove();
+	DTR::EndScene.Remove();
+	DTR::FrameStageNotify.Remove();
+	DTR::OverrideView.Remove();
+	DTR::OverrideMouseInput.Remove();
+	DTR::CreateMove.Remove();
+	DTR::SendNetMsg.Remove();
+	DTR::SendDatagram.Remove();
+	DTR::GetViewModelFOV.Remove();
+	DTR::DoPostScreenEffects.Remove();
+	DTR::IsConnected.Remove();
+	DTR::ListLeavesInBox.Remove();
+	DTR::PaintTraverse.Remove();
+	DTR::DrawModel.Remove();
+	DTR::RunCommand.Remove();
+	DTR::SendMessageGC.Remove();
+	DTR::RetrieveMessage.Remove();
+	DTR::LockCursor.Remove();
+	DTR::PlaySoundSurface.Remove();
+	DTR::SvCheatsGetBool.Remove();
+	/*DTR::CLMove.Remove();
+	DTR::IsHLTV.Remove();
+	DTR::DoProceduralFootPlant.Remove();
+	DTR::ShouldSkipAnimationFrame.Remove();
+	DTR::BuildTransformations.Remove();
+	//DTR::DoBoneProcessing.Remove();
+	//DTR::FireEvents.Remove();*/
+
+	// @note: also should works but makes it undebuggable
+#ifdef DEBUG_CONSOLE
+	L::Print(XorStr("Did not disable debugging"));
+#else
 	MH_DisableHook(MH_ALL_HOOKS);
 	MH_RemoveHook(MH_ALL_HOOKS);
+#endif
 
 	MH_Uninitialize();
 }
@@ -147,7 +189,6 @@ long D3DAPI H::hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresen
 
 	return hReset;
 }
-
 long D3DAPI H::hkEndScene(IDirect3DDevice9* pDevice)
 {
 	static auto oEndScene = DTR::EndScene.GetOriginal<decltype(&hkEndScene)>();
@@ -194,50 +235,47 @@ long D3DAPI H::hkEndScene(IDirect3DDevice9* pDevice)
 	return oEndScene(pDevice);
 }
 
-void* FASTCALL H::hkAllocKeyValuesMemory(IKeyValuesSystem* thisptr, int edx, int iSize)
+bool FASTCALL H::hkCreateMove(IClientModeShared* thisptr, int edx, float flInputSampleTime, CUserCmd* pCmd)
 {
-	static auto oAllocKeyValuesMemory = DTR::AllocKeyValuesMemory.GetOriginal<decltype(&hkAllocKeyValuesMemory)>();
-
-	// return addresses of check function
-	// @credits: danielkrupinski
-	static const std::uintptr_t uAllocKeyValuesEngine = MEM::FindPattern(ENGINE_DLL, XorStr("FF 52 04 85 C0 74 0C 56")) + 0x3;
-	static const std::uintptr_t uAllocKeyValuesClient = MEM::FindPattern(CLIENT_DLL, XorStr("FF 52 04 85 C0 74 0C 56")) + 0x3;
-
-	// doesn't call it yet, but have checking function
-	//static const std::uintptr_t uAllocKeyValuesMaterialSystem = MEM::FindPattern(MATERIALSYSTEM_DLL, XorStr("FF 52 04 85 C0 74 0C 56")) + 0x3;
-	//static const std::uintptr_t uAllocKeyValuesStudioRender = MEM::FindPattern(STUDIORENDER_DLL, XorStr("FF 52 04 85 C0 74 0C 56")) + 0x3;
-
-	if (const std::uintptr_t uReturnAddress = reinterpret_cast<std::uintptr_t>(_ReturnAddress()); uReturnAddress == uAllocKeyValuesEngine || uReturnAddress == uAllocKeyValuesClient)
-		return nullptr;
-
-	return oAllocKeyValuesMemory(thisptr, edx, iSize);
-}
-
-static void STDCALL CreateMove(int nSequenceNumber, float flInputSampleFrametime, bool bIsActive, bool& bSendPacket)
-{
-	static auto oCreateMove = DTR::CreateMoveProxy.GetOriginal<decltype(&H::hkCreateMoveProxy)>();
-
-	// process original CHLClient::CreateMove -> CInput::CreateMove
-	oCreateMove(I::Client, 0, nSequenceNumber, flInputSampleFrametime, bIsActive);
-
-	CUserCmd* pCmd = I::Input->GetUserCmd(nSequenceNumber);
-	CVerifiedUserCmd* pVerifiedCmd = I::Input->GetVerifiedCmd(nSequenceNumber);
-
-	// check do we have valid commands, finished signing on to server and not playing back demos (where our commands are ignored)
-	if (pCmd == nullptr || pVerifiedCmd == nullptr || !bIsActive)
-		return;
-
-	// save global cmd pointer
-	G::pCmd = pCmd;
+	static auto oCreateMove = DTR::CreateMove.GetOriginal<decltype(&hkCreateMove)>();
 
 	/*
 	 * get global localplayer pointer
 	 * @note: dont forget check global localplayer for nullptr when using not in createmove
+	 * also not recommended use so far
 	 */
 	CBaseEntity* pLocal = G::pLocal = CBaseEntity::GetLocalPlayer();
+	
+	// is called from CInput::ExtraMouseSample
+	if (pCmd->iCommandNumber == 0)
+		return oCreateMove(thisptr, edx, flInputSampleTime, pCmd);
+
+	/*
+	 * check is called from CInput::CreateMove
+	 * and SetLocalViewAngles for engine/prediction at the same time
+	 * cuz SetViewAngles isn't called if return false and can cause frame stuttering
+	 */
+	if (oCreateMove(thisptr, edx, flInputSampleTime, pCmd))
+		I::Prediction->SetLocalViewAngles(pCmd->angViewPoint);
+	// save global cmd pointer
+	G::pCmd = pCmd;
+
+	if (I::ClientState == nullptr || I::Engine->IsPlayingDemo())
+		return oCreateMove(thisptr, edx, flInputSampleTime, pCmd);
 
 	// netchannel pointer
 	INetChannel* pNetChannel = I::ClientState->pNetChannel;
+
+	// get stack frame without asm inlines
+	// safe and will not break if you omitting frame pointer
+	const volatile auto vlBaseAddress = *reinterpret_cast<std::uintptr_t*>(reinterpret_cast<std::uintptr_t>(_AddressOfReturnAddress()) - sizeof(std::uintptr_t));
+
+	/*
+	 * get sendpacket pointer from stack frame
+	 * if use global sendpacket value then sendpacket applies only on next tick
+	 * im not recommend use globals anywhere
+	 */
+	bool& bSendPacket = *reinterpret_cast<bool*>(vlBaseAddress - 0x1C);
 
 	// save previous view angles for movement correction
 	QAngle angOldViewPoint = pCmd->angViewPoint;
@@ -246,7 +284,6 @@ static void STDCALL CreateMove(int nSequenceNumber, float flInputSampleFrametime
 
 	// @note: need do bunnyhop and other movements before prediction
 	CMiscellaneous::Get().Run(pCmd, pLocal, bSendPacket);
-
 	/*
 	 * CL_RunPrediction
 	 * correct prediction when framerate is lower than tickrate
@@ -254,17 +291,24 @@ static void STDCALL CreateMove(int nSequenceNumber, float flInputSampleFrametime
 	 */
 	if (I::ClientState->iDeltaTick > 0)
 		I::Prediction->Update(I::ClientState->iDeltaTick, I::ClientState->iDeltaTick > 0, I::ClientState->iLastCommandAck, I::ClientState->iLastOutgoingCommand + I::ClientState->nChokedCommands);
+		
+	bSendPacket = !G::Choke;
 
 	CPrediction::Get().Start(pCmd, pLocal);
 	{
+		if (C::Get<bool>(Vars.bNoRecoilHax) && pLocal->IsAlive()){//(pCmd->iButtons & IN_ATTACK && C::Get<bool>(Vars.bNoRecoilHax)) {
+			static CConVar* weapon_recoil_scale = I::ConVar->FindVar(XorStr("weapon_recoil_scale"));
+			pCmd->angViewPoint.x -= (pLocal->GetPunch().x * weapon_recoil_scale->GetFloat());
+			pCmd->angViewPoint.y -= (pLocal->GetPunch().y * weapon_recoil_scale->GetFloat());
+		}
+		if (C::Get<bool>(Vars.bRage))
+			CRageBot::Get().Run(pCmd, pLocal, bSendPacket);
+
 		if (C::Get<bool>(Vars.bMiscAutoPistol))
 			CMiscellaneous::Get().AutoPistol(pCmd, pLocal);
 
 		if (C::Get<bool>(Vars.bMiscFakeLag) || C::Get<bool>(Vars.bAntiAim))
-			CMiscellaneous::Get().FakeLag(pLocal, bSendPacket);
-
-		if (C::Get<bool>(Vars.bRage))
-			CRageBot::Get().Run(pCmd, pLocal, bSendPacket);
+			CMiscellaneous::Get().FakeLag(pCmd, pLocal, bSendPacket);
 
 		if (C::Get<bool>(Vars.bLegit))
 			CLegitBot::Get().Run(pCmd, pLocal, bSendPacket);
@@ -277,64 +321,57 @@ static void STDCALL CreateMove(int nSequenceNumber, float flInputSampleFrametime
 
 		if (C::Get<bool>(Vars.bAntiAim))
 			CAntiAim::Get().Run(pCmd, pLocal, bSendPacket);
+		if (C::Get<bool>(Vars.bMiscDoDomToretto))
+			CMiscellaneous::Get().DomToretto();
 	}
 	CPrediction::Get().End(pCmd, pLocal);
 
 	if (pLocal->IsAlive())
 		CMiscellaneous::Get().MovementCorrection(pCmd, angOldViewPoint);
-
 	// clamp & normalize view angles
 	if (C::Get<bool>(Vars.bMiscAntiUntrusted))
 	{
 		pCmd->angViewPoint.Normalize();
 		pCmd->angViewPoint.Clamp();
 	}
-
 	if (C::Get<bool>(Vars.bMiscPingSpike))
 		CLagCompensation::Get().UpdateIncomingSequences(pNetChannel);
 	else
 		CLagCompensation::Get().ClearIncomingSequences();
 
-	// @note: we doesnt need rehook manually cuz detours here
+	// @note: doesnt need rehook cuz detours here
 	if (pNetChannel != nullptr)
 	{
 		if (!DTR::SendNetMsg.IsHooked())
-			DTR::SendNetMsg.Create(MEM::GetVFunc(pNetChannel, VTABLE::SENDNETMSG), &H::hkSendNetMsg);
+			DTR::SendNetMsg.Create(MEM::GetVFunc(pNetChannel, VTABLE::SENDNETMSG), &hkSendNetMsg);
 
 		if (!DTR::SendDatagram.IsHooked())
-			DTR::SendDatagram.Create(MEM::GetVFunc(pNetChannel, VTABLE::SENDDATAGRAM), &H::hkSendDatagram);
+			DTR::SendDatagram.Create(MEM::GetVFunc(pNetChannel, VTABLE::SENDDATAGRAM), &hkSendDatagram);
 	}
+	/*
+	for (int i = 0; i < C::Get<std::vector<ActiveLuaScript>>(Vars.scripts).size(); i++) {
+		ActiveLuaScript currentScript = C::Get<std::vector<ActiveLuaScript>>(Vars.scripts)[i];
+		lua_getglobal(currentScript.L, "hkCreateMove");
+		lua_call(currentScript.L, 0, 0);
+		lua_pop(currentScript.L, 1);
+	}
+	*/
+	// save next angles
+	if (bSendPacket)
+		G::lastThirdPersonAngle = pCmd->angViewPoint;
+	else
+		G::angFakeView = pCmd->angViewPoint;
 
-	// store next tick view angles state
 	G::angRealView = pCmd->angViewPoint;
 
-	// store current tick send packet state
+	// save next global sendpacket state
 	G::bSendPacket = bSendPacket;
 
 	// @note: i seen many times this mistake and please do not set/clamp angles here cuz u get confused with psilent aimbot later!
 
 	SEH_END
 
-	pVerifiedCmd->userCmd = *pCmd;
-	pVerifiedCmd->uHashCRC = pCmd->GetChecksum();
-}
-
-__declspec(naked) void FASTCALL H::hkCreateMoveProxy([[maybe_unused]] IBaseClientDll* thisptr, [[maybe_unused]] int edx, [[maybe_unused]] int nSequenceNumber, [[maybe_unused]] float flInputSampleFrametime, [[maybe_unused]] bool bIsActive)
-{
-	__asm
-	{
-		push	ebp
-		mov		ebp, esp; // store the stack
-		push	ebx; // bSendPacket
-		push	esp; // restore the stack
-		push	dword ptr[bIsActive]; // ebp + 16
-		push	dword ptr[flInputSampleFrametime]; // ebp + 12
-		push	dword ptr[nSequenceNumber]; // ebp + 8
-		call	CreateMove
-		pop		ebx
-		pop		ebp
-		retn	0Ch
-	}
+	return false;
 }
 
 void FASTCALL H::hkPaintTraverse(ISurface* thisptr, int edx, unsigned int uPanel, bool bForceRepaint, bool bForce)
@@ -345,7 +382,6 @@ void FASTCALL H::hkPaintTraverse(ISurface* thisptr, int edx, unsigned int uPanel
 	// remove zoom panel
 	if (!I::Engine->IsTakingScreenshot() && C::Get<bool>(Vars.bWorld) && C::Get<std::vector<bool>>(Vars.vecWorldRemovals).at(REMOVAL_SCOPE) && uPanelHash == FNV1A::HashConst("HudZoom"))
 		return;
-
 	oPaintTraverse(thisptr, edx, uPanel, bForceRepaint, bForce);
 
 	// @note: we don't render here, only store's data and render it later
@@ -416,7 +452,18 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * data has been received and we are going to start calling postdataupdate
 		 * e.g. resolver or skinchanger and other visuals
 		 */
-
+		if (C::Get<bool>(Vars.bResolver)) {
+			
+			for (int i = 1; i <= I::Globals->nMaxClients; i++)
+			{
+				CBaseEntity* pEntity = I::ClientEntityList->Get<CBaseEntity>(i);
+				if (!pEntity) continue;
+				if (!pEntity->IsDormant() && pEntity->IsAlive() && pEntity != G::pLocal && pEntity->GetTeam() != G::pLocal->GetTeam()) {
+					CResolver::Get().Run(pEntity);
+				}
+			}
+		}
+		
 		break;
 	}
 	case FRAME_NET_UPDATE_POSTDATAUPDATE_END:
@@ -425,11 +472,12 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * data has been received and called postdataupdate on all data recipients
 		 * e.g. now we can modify interpolation, other lagcompensation stuff
 		 */
-
 		break;
 	}
 	case FRAME_NET_UPDATE_END:
 	{
+
+		
 		/*
 		 * received all packets, now do interpolation, prediction, etc
 		 * e.g. backtrack stuff
@@ -443,14 +491,24 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * start rendering the scene
 		 * e.g. remove visual punch, thirdperson, other render/update stuff
 		 */
-
+		for (int i = 1; i <= I::Globals->nMaxClients; i++)
+		{
+			if (i == I::Engine->GetLocalPlayer()) continue;
+			CBaseEntity* pEntity = I::ClientEntityList->Get<CBaseEntity>(i);
+			if (!pEntity) continue;
+			*(int*)((uintptr_t)pEntity + 0xA30) = I::Globals->iFrameCount; //we'll skip occlusion checks now
+			pEntity->GetOcclusionFlags() = 0;
+			
+		}
 		 // set max flash alpha
 		*pLocal->GetFlashMaxAlpha() = C::Get<bool>(Vars.bWorld) ? C::Get<int>(Vars.iWorldMaxFlash) * 2.55f : 255.f;
 
 		// no draw smoke
-		for (const auto& szSmokeMaterial : arrSmokeMaterials)
+		for (auto szSmokeMaterial : arrSmokeMaterials)
 		{
-			if (IMaterial* pMaterial = I::MaterialSystem->FindMaterial(szSmokeMaterial, TEXTURE_GROUP_OTHER); pMaterial != nullptr && !pMaterial->IsErrorMaterial())
+			IMaterial* pMaterial = I::MaterialSystem->FindMaterial(szSmokeMaterial, TEXTURE_GROUP_OTHER);
+
+			if (pMaterial != nullptr && !pMaterial->IsErrorMaterial())
 				pMaterial->SetMaterialVarFlag(MATERIAL_VAR_NO_DRAW, (C::Get<bool>(Vars.bWorld) && C::Get<std::vector<bool>>(Vars.vecWorldRemovals).at(REMOVAL_SMOKE)) ? true : false);
 		}
 
@@ -464,8 +522,8 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 			if (C::Get<std::vector<bool>>(Vars.vecWorldRemovals).at(REMOVAL_PUNCH))
 			{
 				// change current values
-				pLocal->GetViewPunch() = QAngle{ };
-				pLocal->GetPunch() = QAngle{ };
+				pLocal->GetViewPunch() = QAngle(0, 0, 0);
+				pLocal->GetPunch() = QAngle(0, 0, 0);
 			}
 		}
 
@@ -480,6 +538,11 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 			// my solution is here cuz camera offset is dynamically by standard functions without any garbage in overrideview hook
 			I::Input->bCameraInThirdPerson = bThirdPerson && pLocal->IsAlive() && !I::Engine->IsTakingScreenshot();
 			I::Input->vecCameraOffset.z = bThirdPerson ? C::Get<float>(Vars.flWorldThirdPersonOffset) : 150.f;
+			if (I::Input->bCameraInThirdPerson){
+				//QAngle viewAngle = G::pCmd->angViewPoint;
+				I::Prediction->SetLocalViewAngles(G::lastThirdPersonAngle);
+				G::pLocal->UpdateClientSideAnimations();
+			}
 		}
 
 		break;
@@ -490,8 +553,13 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * finished rendering the scene
 		 * here we can restore our modified things
 		 */
-
+		//CVisuals::Get().Skybox(C::Get<int>(Vars.iWorldSkyType));
 		// restore original visual punch values
+
+		if (G::pLocal != nullptr) {
+			CVisuals::Get().Skybox(C::Get<int>(Vars.iWorldSkyType));
+			CVisuals::Get().Fullbright(C::Get<bool>(Vars.bWorldFullbright));
+		}
 		if (pLocal->IsAlive() && C::Get<bool>(Vars.bWorld) && C::Get<std::vector<bool>>(Vars.vecWorldRemovals).at(REMOVAL_PUNCH))
 		{
 			pLocal->GetViewPunch() = angOldViewPunch;
@@ -518,8 +586,8 @@ void FASTCALL H::hkDrawModel(IStudioRender* thisptr, int edx, DrawModelResults_t
 
 	bool bClearOverride = false;
 
-	if (CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer(); pLocal != nullptr && C::Get<bool>(Vars.bEsp) && C::Get<bool>(Vars.bEspChams))
-		bClearOverride = CVisuals::Get().Chams(pLocal, pResults, info, pBoneToWorld, flFlexWeights, flFlexDelayedWeights, vecModelOrigin, nFlags);
+	if (G::pLocal != nullptr && C::Get<bool>(Vars.bEsp) && C::Get<bool>(Vars.bEspChams))
+		bClearOverride = CVisuals::Get().Chams(G::pLocal, pResults, info, pBoneToWorld, flFlexWeights, flFlexDelayedWeights, vecModelOrigin, nFlags);
 
 	oDrawModel(thisptr, edx, pResults, info, pBoneToWorld, flFlexWeights, flFlexDelayedWeights, vecModelOrigin, nFlags);
 	
@@ -646,29 +714,32 @@ int FASTCALL H::hkSendDatagram(INetChannel* thisptr, int edx, bf_write* pDatagra
 void FASTCALL H::hkOverrideView(IClientModeShared* thisptr, int edx, CViewSetup* pSetup)
 {
 	static auto oOverrideView = DTR::OverrideView.GetOriginal<decltype(&hkOverrideView)>();
-	
+
 	if (!I::Engine->IsInGame() || I::Engine->IsTakingScreenshot())
 		return oOverrideView(thisptr, edx, pSetup);
 
-	CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer();
-
 	// get camera origin
 	G::vecCamera = pSetup->vecOrigin;
-	
-	if (pLocal == nullptr || !pLocal->IsAlive())
+
+	if (G::pLocal == nullptr || !G::pLocal->IsAlive())
 		return oOverrideView(thisptr, edx, pSetup);
 
-	CBaseCombatWeapon* pWeapon = pLocal->GetWeapon();
+	CBaseCombatWeapon* pWeapon = G::pLocal->GetWeapon();
 
 	if (pWeapon == nullptr)
 		return oOverrideView(thisptr, edx, pSetup);
 
 	if (CCSWeaponData* pWeaponData = I::WeaponSystem->GetWeaponData(pWeapon->GetItemDefinitionIndex());
-		pWeaponData != nullptr && C::Get<bool>(Vars.bScreen) && std::fpclassify(C::Get<float>(Vars.flScreenCameraFOV)) != FP_ZERO &&
-		// check is we not scoped
-		(pWeaponData->nWeaponType == WEAPONTYPE_SNIPER ? !pLocal->IsScoped() : true))
-		// set camera fov
+		pWeaponData != nullptr && C::Get<bool>(Vars.bScreen) && std::fpclassify(C::Get<float>(Vars.flScreenCameraFOV)) != FP_ZERO) {
 		pSetup->flFOV += C::Get<float>(Vars.flScreenCameraFOV);
+		if (G::pLocal->IsScoped() && C::Get<bool>(Vars.bScreenOverwriteZoom)) {
+			pSetup->flFOV = C::Get<float>(Vars.flScopedFov);
+		}
+
+	}/*&&
+		// check is we not scoped
+		((pWeaponData->nWeaponType == WEAPONTYPE_SNIPER ? !G::pLocal->IsScoped() : true) || false))*/
+		// set camera fov
 
 	oOverrideView(thisptr, edx, pSetup);
 }
@@ -690,7 +761,7 @@ float FASTCALL H::hkGetViewModelFOV(IClientModeShared* thisptr, int edx)
 	if (!I::Engine->IsInGame() || I::Engine->IsTakingScreenshot())
 		return oGetViewModelFOV(thisptr, edx);
 
-	if (CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer(); pLocal != nullptr && pLocal->IsAlive() && C::Get<bool>(Vars.bScreen) && std::fpclassify(C::Get<float>(Vars.flScreenViewModelFOV)) != FP_ZERO)
+	if (G::pLocal != nullptr && G::pLocal->IsAlive() && C::Get<bool>(Vars.bScreen) && std::fpclassify(C::Get<float>(Vars.flScreenViewModelFOV)) != FP_ZERO)
 		return oGetViewModelFOV(thisptr, edx) + C::Get<float>(Vars.flScreenViewModelFOV);
 
 	return oGetViewModelFOV(thisptr, edx);
@@ -703,8 +774,8 @@ int FASTCALL H::hkDoPostScreenEffects(IClientModeShared* thisptr, int edx, CView
 	if (!I::Engine->IsInGame() || I::Engine->IsTakingScreenshot())
 		return oDoPostScreenEffects(thisptr, edx, pSetup);
 
-	if (CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer(); pLocal != nullptr && C::Get<bool>(Vars.bEsp) && C::Get<bool>(Vars.bEspGlow))
-		CVisuals::Get().Glow(pLocal);
+	if (G::pLocal != nullptr && C::Get<bool>(Vars.bEsp) && C::Get<bool>(Vars.bEspGlow))
+		CVisuals::Get().Glow(G::pLocal);
 
 	return oDoPostScreenEffects(thisptr, edx, pSetup);
 }
@@ -735,7 +806,7 @@ int FASTCALL H::hkSendMessage(ISteamGameCoordinator* thisptr, int edx, std::uint
 
 	#ifdef DEBUG_CONSOLE
 	L::PushConsoleColor(FOREGROUND_INTENSE_GREEN | FOREGROUND_RED);
-	L::Print(XorStr("[<-] Message sent to GC {:d}!"), uMessageType);
+	L::Print(fmt::format(XorStr("[<-] Message sent to GC {:d}!"), uMessageType));
 	L::PopConsoleColor();
 	#endif
 
@@ -750,11 +821,11 @@ int FASTCALL H::hkRetrieveMessage(ISteamGameCoordinator* thisptr, int edx, std::
 	if (iStatus != EGCResultOK)
 		return iStatus;
 
-	const std::uint32_t uMessageType = *puMsgType & 0x7FFFFFFF;
+	std::uint32_t uMessageType = *puMsgType & 0x7FFFFFFF;
 
 	#ifdef DEBUG_CONSOLE
 	L::PushConsoleColor(FOREGROUND_INTENSE_GREEN | FOREGROUND_RED);
-	L::Print(XorStr("[->] Message received from GC {:d}!"), uMessageType);
+	L::Print(fmt::format(XorStr("[->] Message received from GC {:d}!"), uMessageType));
 	L::PopConsoleColor();
 	#endif
 
@@ -762,7 +833,7 @@ int FASTCALL H::hkRetrieveMessage(ISteamGameCoordinator* thisptr, int edx, std::
 	if (C::Get<bool>(Vars.bMiscAutoAccept) && uMessageType == 9177)
 	{
 		U::SetLocalPlayerReady();
-		Beep(500, 800);
+		//Beep(500, 800);
 		U::FlashWindow(IPT::hWindow);
 	}
 
@@ -775,6 +846,9 @@ bool FASTCALL H::hkSvCheatsGetBool(CConVar* thisptr, int edx)
 	static std::uintptr_t uCAM_ThinkReturn = (MEM::FindPattern(CLIENT_DLL, XorStr("85 C0 75 30 38 86"))); // @xref: "Pitch: %6.1f   Yaw: %6.1f   Dist: %6.1f %16s"
 
 	if (reinterpret_cast<std::uintptr_t>(_ReturnAddress()) == uCAM_ThinkReturn && C::Get<bool>(Vars.bWorld) && C::Get<int>(Vars.iWorldThirdPersonKey) > 0)
+		return true;
+
+	if (reinterpret_cast<std::uintptr_t>(_ReturnAddress()) == uCAM_ThinkReturn && C::Get<bool>(Vars.bMiscSvCheat))
 		return true;
 
 	return oSvCheatsGetBool(thisptr, edx);
@@ -803,6 +877,115 @@ long CALLBACK H::hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam)
 
 	// return input controls to the game
 	return CallWindowProcW(IPT::pOldWndProc, hWnd, uMsg, wParam, lParam);
+}
+
+void H::hkCLMove(float AccumulatedExtraSamples, bool FinalTick)
+{
+	auto Shift = [](float AccumulatedExtraSamples, bool FinalTick) -> void {
+		G::Shifting = true;
+		for (int i = 0; i < G::SavedCommands; i++)
+		{
+			G::Choke = false;
+
+			if (i != G::SavedCommands - 1)
+				G::Choke = true;
+
+			DTR::CLMove.GetOriginal<decltype(&hkCLMove)>()(AccumulatedExtraSamples, FinalTick);
+		}
+		G::Choke = false;
+		G::Shifting = false;
+		G::SavedCommands = 0;
+	};
+
+	if (!I::Engine->IsConnected() || !(G::pLocal && G::pLocal->IsAlive())) {
+		Shift(AccumulatedExtraSamples, FinalTick);
+
+		return DTR::CLMove.GetOriginal<decltype(&hkCLMove)>()(AccumulatedExtraSamples, FinalTick);
+	}
+
+	static CConVar* MaxUsrProcess = I::ConVar->FindVar("sv_maxusrcmdprocessticks");
+
+	if (G::SavedCommands < MaxUsrProcess->GetInt() && !G::Shifting) {
+		G::SavedCommands++;
+		return;
+	}
+
+	DTR::CLMove.GetOriginal<decltype(&hkCLMove)>()(AccumulatedExtraSamples, FinalTick);
+	if (G::pCmd && G::SavedCommands > 1)
+	{
+		if (IPT::IsKeyDown(C::Get<int>(Vars.iRageDoubleTapKey))){
+			static int lastTick = 0;
+			if (lastTick + G::DoubleTapCooldown <= G::pCmd->iTickCount)
+				G::DoubleTapCooldown = 0;
+
+			if (G::pCmd->iButtons & IN_ATTACK && G::DoubleTapCooldown == 0)
+			{
+				lastTick = G::pCmd->iTickCount;
+				G::DoubleTapCooldown = 64;
+				Shift(AccumulatedExtraSamples, FinalTick);
+			}
+		}
+	}
+
+	return;
+}
+
+bool FASTCALL H::hkIsHLTV(void* this_pointer, void* edx) {
+	bool oReturn = DTR::IsHLTV.GetOriginal<decltype(&hkIsHLTV)>()(this_pointer, edx);
+	static DWORD AccumulateLayersCall = MEM::FindPattern(CLIENT_DLL, XorStr("84 C0 75 0D F6 87"));
+	static DWORD SetupVelocityCall = MEM::FindPattern(CLIENT_DLL, XorStr("84 C0 75 38 8B 0D ? ? ? ? 8B 01 8B 80 ? ? ? ? FF D0"));
+
+	//if (!I::Engine->IsInGame() || !G::pLocal)
+		//return oReturn;
+
+	if (reinterpret_cast<DWORD>(_ReturnAddress()) == AccumulateLayersCall || reinterpret_cast<DWORD>(_ReturnAddress()) == SetupVelocityCall)
+		return true;
+
+	return oReturn;
+}
+
+bool FASTCALL H::hkDoBoneProcessing(void* this_pointer, void* edx, matrix3x4a_t* pBoneToWorldOut, int nMaxBones, int boneMask, float currentTime) {
+	return false;//bool oReturn = DTR::DoBoneProcessing.GetOriginal<decltype(&hkDoBoneProcessing)>()(this_pointer, edx, pBoneToWorldOut, nMaxBones, boneMask, currentTime);
+}
+
+void FASTCALL H::hkDoProceduralFootPlant(void* this_pointer, void* edx, matrix3x4a_t boneToWorld[], void* pLeftFootChain, void* pRightFootChain, void* pos[]) {
+	return;//bool oReturn = DTR::DoBoneProcessing.GetOriginal<decltype(&hkDoBoneProcessing)>()(this_pointer, edx, pBoneToWorldOut, nMaxBones, boneMask, currentTime);
+}
+
+bool FASTCALL H::hkShouldSkipAnimationFrame(void* this_pointer, void* edx) {
+	return false;//bool oReturn = DTR::DoBoneProcessing.GetOriginal<decltype(&hkDoBoneProcessing)>()(this_pointer, edx, pBoneToWorldOut, nMaxBones, boneMask, currentTime);
+}
+
+void* FASTCALL H::hkFireEvents(void* ecx, void* edx)
+{
+	for(CEventInfo* Event = I::ClientState->pEvents; Event; Event = Event->next)
+		Event->flFireDelay = 0.f;
+
+	return DTR::CLMove.GetOriginal<decltype(&hkFireEvents)>()(ecx, edx);
+}
+
+void* FASTCALL H::hkBuildTransformations(void* this_pointer, void* edx, void* hdr, void* pos, void* q, const void* camera_transform, int bone_mask, void* bone_computed) {
+	static auto original_build_transformations = DTR::BuildTransformations.GetOriginal< decltype(&hkBuildTransformations) >();
+
+	// the function is apart of the C_CSPlayer virtual table so the "this" pointer is a player entity
+	const auto player = reinterpret_cast<CBaseEntity*>(this_pointer);
+
+	// disable the games jiggle physics
+	// there is no need to backup and restore m_isJiggleBonesEnabled
+	player->GetJigglyJigglies() = false;
+
+	return original_build_transformations(this_pointer, edx, hdr, pos, q, camera_transform, bone_mask, bone_computed);
+}
+
+void FASTCALL H::hkCheckForSequenceChange(void* this_pointer, void* edx, void* hdr, int cur_sequence, bool force_new_sequence, bool interpolate) {
+
+	static auto original_check_for_sequence_change = DTR::CheckForSequenceChange.GetOriginal< decltype(&hkCheckForSequenceChange) >();
+
+	// no sequence interpolation over here mate
+	// forces the animation queue to clear
+
+	return original_check_for_sequence_change(this_pointer, edx, hdr, cur_sequence, force_new_sequence, false);
+
 }
 #pragma endregion
 

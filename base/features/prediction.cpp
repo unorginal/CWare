@@ -17,8 +17,8 @@ void CPrediction::Start(CUserCmd* pCmd, CBaseEntity* pLocal)
 	*pLocal->GetCurrentCommand() = pCmd;
 	pLocal->GetLastCommand() = *pCmd;
 
-	// random seed was already generated in CInput::CreateMove
-	*uPredictionRandomSeed = pCmd->iRandomSeed;
+	// random_seed isn't generated in ClientMode::CreateMove yet, we must generate it ourselves
+	*uPredictionRandomSeed = MD5::PseudoRandom(pCmd->iCommandNumber) & std::numeric_limits<int>::max();
 	// set ourselves as a predictable entity
 	*pPredictionPlayer = pLocal;
 
@@ -113,7 +113,7 @@ void CPrediction::Start(CUserCmd* pCmd, CBaseEntity* pLocal)
 			if (!result)
 				pPlayer->GetEFlags() = nEFlags | EFL_NO_THINK_FUNCTION;
 		}
-		
+
 		 */
 
 		pLocal->Think();

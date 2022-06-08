@@ -21,12 +21,10 @@
 void CVisuals::Store()
 {
 	CBaseEntity* pLocal = CBaseEntity::GetLocalPlayer();
-
 	if (pLocal == nullptr)
 		return;
 
 	float flServerTime = TICKS_TO_TIME(pLocal->GetTickBase());
-
 	// disable post-processing
 	static CConVar* mat_postprocess_enable = I::ConVar->FindVar(XorStr("mat_postprocess_enable"));
 	mat_postprocess_enable->fnChangeCallbacks.Size() = NULL;
@@ -70,7 +68,6 @@ void CVisuals::Store()
 			HitMarker(vecScreenSize, flServerTime, C::Get<Color>(Vars.colScreenHitMarker), C::Get<Color>(Vars.colScreenHitMarkerDamage));
 	}
 	#pragma endregion
-
 	#pragma region visuals_store_esp
 	std::vector<std::pair<CBaseEntity*, float>> vecOrder = { };
 
@@ -78,7 +75,7 @@ void CVisuals::Store()
 	{
 		CBaseEntity* pEntity = I::ClientEntityList->Get<CBaseEntity>(i);
 
-		if (pEntity == nullptr || pEntity->IsDormant())
+		if (pEntity == nullptr)//|| pEntity->IsDormant())
 			continue;
 
 		// save entities and calculated distance for sort
@@ -314,7 +311,7 @@ void CVisuals::Event(IGameEvent* pEvent, const FNV1A_t uNameHash)
 					return;
 
 				// add hit info
-				vecHitMarks.emplace_back(HitMarkerObject_t{ vecPosition.value(), pEvent->GetInt(XorStr("dmg_health")), flServerTime });
+				vecHitMarks.emplace_back(HitMarkerObject_t{ vecPosition.value(), pEvent->GetInt(XorStr("dmg_health")), flServerTime + C::Get<float>(Vars.flScreenHitMarkerTime) });
 			}
 		}
 	}
@@ -344,10 +341,8 @@ bool CVisuals::Chams(CBaseEntity* pLocal, DrawModelResults_t* pResults, const Dr
 			return false;
 
 		// team filters check
-			// enemies
-		if ((pLocal->IsEnemy(pEntity) && C::Get<bool>(Vars.bEspChamsEnemies)) ||
-			// teammates & local
-			(((pEntity == pLocal && I::Input->bCameraInThirdPerson) || !pLocal->IsEnemy(pEntity)) && C::Get<bool>(Vars.bEspChamsAllies)))
+			// enemies                                                             // team and local
+		if ((pLocal->IsEnemy(pEntity) && C::Get<bool>(Vars.bEspChamsEnemies)) || (((pEntity == pLocal && I::Input->bCameraInThirdPerson) || !pLocal->IsEnemy(pEntity)) && C::Get<bool>(Vars.bEspChamsAllies)))
 		{
 			static IMaterial* pMaterial = nullptr;
 
@@ -428,6 +423,7 @@ bool CVisuals::Chams(CBaseEntity* pLocal, DrawModelResults_t* pResults, const Dr
 			return false;
 
 		pSleeveMaterial->SetMaterialVarFlag(MATERIAL_VAR_NO_DRAW, true);
+		
 		I::StudioRender->ForcedMaterialOverride(pSleeveMaterial);
 
 		// then draw original model with our flags
@@ -554,6 +550,7 @@ bool CVisuals::Chams(CBaseEntity* pLocal, DrawModelResults_t* pResults, const Dr
 
 void CVisuals::Glow(CBaseEntity* pLocal)
 {
+
 	for (int i = 0; i < I::GlowManager->vecGlowObjectDefinitions.Count(); i++)
 	{
 		IGlowObjectManager::GlowObject_t& hGlowObject = I::GlowManager->vecGlowObjectDefinitions[i];
@@ -588,7 +585,7 @@ void CVisuals::Glow(CBaseEntity* pLocal)
 			break;
 		case EClassIndex::CCSPlayer:
 		{
-			if (pEntity->IsDormant() || !pEntity->IsAlive())
+			if (!pEntity->IsAlive())//(pEntity->IsDormant() || !pEntity->IsAlive())
 				break;
 
 			// team filters check
@@ -714,26 +711,27 @@ IMaterial* CVisuals::CreateMaterial(std::string_view szName, std::string_view sz
 	 * use "mat_texture_list 1" command to see full materials list
 	 */
 
-	const std::string szMaterial = std::vformat(XorStr(R"#("{0}"
+	const std::string szMaterial = fmt::format(XorStr(R"#("{shader}"
 	{{
-		"$basetexture"		"{1}"
-		"$envmap"			"{2}"
+		"$basetexture"		"{texture}"
+		"$envmap"			"{envmap}"
 		"$envmapfresnel"	"0"
 		"$model"			"1"
 		"$translucent"		"0"
-		"$ignorez"			"{3}"
+		"$ignorez"			"{ignorez}"
 		"$selfillum"		"1"
 		"$halflambert"		"1"
-		"$wireframe"		"{4}"
+		"$wireframe"		"{wireframe}"
 		"$nofog"			"1"
 		"proxies"
 		{{
-			{5}
+			{proxies}
 		}}
-	}})#"), std::make_format_args(szShader, szBaseTexture, szEnvMap, bIgnorez ? 1 : 0, bWireframe ? 1 : 0, szProxies));
+	}})#"), fmt::arg(XorStr("shader"), szShader), fmt::arg(XorStr("texture"), szBaseTexture), fmt::arg(XorStr("envmap"), szEnvMap), fmt::arg(XorStr("ignorez"), bIgnorez ? 1 : 0), fmt::arg(XorStr("wireframe"), bWireframe ? 1 : 0), fmt::arg(XorStr("proxies"), szProxies));
 
 	// load to memory
-	CKeyValues* pKeyValues = new CKeyValues(szShader.data());
+	CKeyValues* pKeyValues = static_cast<CKeyValues*>(CKeyValues::operator new(sizeof(CKeyValues)));
+	pKeyValues->Init(szShader.data());
 	pKeyValues->LoadFromBuffer(szName.data(), szMaterial.c_str());
 
 	// create from buffer
@@ -746,13 +744,13 @@ void CVisuals::HitMarker(const ImVec2& vecScreenSize, float flServerTime, Color 
 		return;
 
 	// get last time delta for lines
-	const float flLastDelta = vecHitMarks.back().flTime + C::Get<float>(Vars.flScreenHitMarkerTime) - flServerTime;
+	const float flLastDelta = vecHitMarks.back().flTime - flServerTime;
 
 	if (flLastDelta <= 0.f)
 		return;
 
 	const float flMaxLinesAlpha = colLines.Base<COLOR_A>();
-	constexpr std::array<std::array<float, 2U>, 4U> arrSides = { { { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f } } };
+	static constexpr auto arrSides = std::to_array<std::array<float, 2U>>({ { -1.0f, -1.0f }, { 1.0f, 1.0f }, { -1.0f, 1.0f }, { 1.0f, -1.0f } });
 
 	for (const auto& arrSide : arrSides)
 		// draw mark cross
@@ -762,29 +760,29 @@ void CVisuals::HitMarker(const ImVec2& vecScreenSize, float flServerTime, Color 
 		return;
 
 	const float flMaxDamageAlpha = colDamage.Base<COLOR_A>();
+	for (std::size_t i = 0U; i < vecHitMarks.size(); i++)
+	{
+		const float flDelta = vecHitMarks.at(i).flTime - flServerTime;
 
-	std::erase_if(vecHitMarks, [&](const auto& hitmarkObject)
+		if (flDelta <= 0.f)
 		{
-			const float flDelta = hitmarkObject.flTime + C::Get<float>(Vars.flScreenHitMarkerTime) - I::Globals->flCurrentTime;
+			vecHitMarks.erase(vecHitMarks.cbegin() + i);
+			continue;
+		}
 
-			if (flDelta <= 0.f)
-				return true;
+		if (ImVec2 vecScreen = { }; D::WorldToScreen(vecHitMarks.at(i).vecPosition, vecScreen))
+		{
+			// max distance for floating damage
+			constexpr float flDistance = 40.f;
+			const float flRatio = 1.0f - (flDelta / C::Get<float>(Vars.flScreenHitMarkerTime));
 
-			if (ImVec2 vecScreen = { }; D::WorldToScreen(hitmarkObject.vecPosition, vecScreen))
-			{
-				// max distance for floating damage
-				constexpr float flDistance = 40.f;
-				const float flRatio = 1.0f - (flDelta / C::Get<float>(Vars.flScreenHitMarkerTime));
+			// calculate fade out alpha
+			const int iAlpha = static_cast<int>(std::min(flMaxDamageAlpha, flDelta / C::Get<float>(Vars.flScreenHitMarkerTime)) * 255.f);
 
-				// calculate fade out alpha
-				const int iAlpha = static_cast<int>(std::min(flMaxDamageAlpha, flDelta / C::Get<float>(Vars.flScreenHitMarkerTime)) * 255.f);
-
-				// draw dealt damage
-				D::AddText(F::SmallestPixel, 24.f, ImVec2(vecScreen.x, vecScreen.y - flRatio * flDistance), std::to_string(hitmarkObject.iDamage), colDamage.Set<COLOR_A>(static_cast<std::uint8_t>(iAlpha)), DRAW_TEXT_OUTLINE, Color(0, 0, 0, iAlpha));
-			}
-
-			return false;
-		});
+			// draw dealt damage
+			D::AddText(F::FatherBold, 24.f, ImVec2(vecScreen.x, vecScreen.y - flRatio * flDistance), std::to_string(vecHitMarks.at(i).iDamage), colDamage.Set<COLOR_A>(static_cast<std::uint8_t>(iAlpha)), DRAW_TEXT_OUTLINE, Color(0, 0, 0, iAlpha));
+		}
+	}
 }
 
 void CVisuals::NightMode(CEnvTonemapController* pController) const
@@ -802,6 +800,97 @@ void CVisuals::NightMode(CEnvTonemapController* pController) const
 
 	if (bSwitch != (C::Get<bool>(Vars.bWorld) && C::Get<bool>(Vars.bWorldNightMode)))
 		bSwitch = (C::Get<bool>(Vars.bWorld) && C::Get<bool>(Vars.bWorldNightMode));
+}
+
+void CVisuals::Skybox(int type) {
+	if (!C::Get<bool>(Vars.bWorldChangeSkybox))
+		return;
+	switch (C::Get<int>(Vars.iWorldSkyType))
+	{
+	case 0: //Baggage
+		U::LoadSkyName("cs_baggage_skybox");
+		break;
+	case 1: //Tibet
+		U::LoadSkyName("cs_tibet");
+		break;
+	case 2: //Clear Sky
+		U::LoadSkyName("clearsky");
+		break;
+	case 3: //Clear Sky HD
+		U::LoadSkyName("clearsky_hdr");
+		break;
+	case 4: //Embassy
+		U::LoadSkyName("embassy");
+		break;
+	case 5: //Italy
+		U::LoadSkyName("italy");
+		break;
+	case 6: //Daylight 1
+		U::LoadSkyName("sky_cs15_daylight01_hdr");
+		break;
+	case 7: //Daylight 2
+		U::LoadSkyName("sky_cs15_daylight02_hdr");
+		break;
+	case 8: //Daylight 3
+		U::LoadSkyName("sky_cs15_daylight03_hdr");
+		break;
+	case 9: //Daylight 4
+		U::LoadSkyName("sky_cs15_daylight04_hdr");
+		break;
+	case 10: //Cloudy
+		U::LoadSkyName("sky_csgo_cloudy01");
+		break;
+	case 11: //Night 1
+		U::LoadSkyName("sky_csgo_night02");
+		break;
+	case 12: //Night 2
+		U::LoadSkyName("sky_csgo_night02b");
+		break;
+	case 13: //Night Flat
+		U::LoadSkyName("sky_csgo_night_flat");
+		break;
+	case 14: //Day HD
+		U::LoadSkyName("sky_day02_05_hdr");
+		break;
+	case 15: //Day
+		U::LoadSkyName("sky_day02_05");
+		break;
+	case 16: //Rural
+		U::LoadSkyName("sky_l4d_rural02_ldr");
+		break;
+	case 17: //Vertigo HD
+		U::LoadSkyName("vertigo_hdr");
+		break;
+	case 18: //Vertigo Blue HD
+		U::LoadSkyName("vertigoblue_hdr");
+		break;
+	case 19: //Vertigo
+		U::LoadSkyName("vertigo");
+		break;
+	case 20: //Vietnam
+		U::LoadSkyName("vietnam");
+		break;
+	case 21: //Dusty Sky
+		U::LoadSkyName("sky_dust");
+		break;
+	case 22: //Jungle
+		U::LoadSkyName("jungle");
+		break;
+	case 23: //Nuke
+		U::LoadSkyName("nukeblank");
+		break;
+	case 24: //Office
+		U::LoadSkyName("office");
+		break;
+	default:
+		break;
+	}
+}
+
+void CVisuals::Fullbright(bool doBrightness) {
+	static CConVar* brightness = I::ConVar->FindVar("mat_fullbright");
+	if (brightness->GetBool() != doBrightness)
+		brightness->SetValue(doBrightness);
 }
 
 void CVisuals::Bomb(const ImVec2& vecScreen, Context_t& ctx, const Color& colFrame) const
@@ -997,9 +1086,9 @@ void CVisuals::DroppedWeapons(CBaseCombatWeapon* pWeapon, short nItemDefinitionI
 	{
 		const int iDistance = static_cast<int>(M_INCH2METRE(flDistance));
 		std::string szDistance = std::to_string(iDistance).append(XorStr("M"));
-		const ImVec2 vecDistanceSize = F::SmallestPixel->CalcTextSizeA(12.f, FLT_MAX, 0.0f, szDistance.c_str());
+		const ImVec2 vecDistanceSize = F::FatherBold->CalcTextSizeA(12.f, FLT_MAX, 0.0f, szDistance.c_str());
 
-		D::AddText(F::SmallestPixel, 12.f, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecDistanceSize.x * 0.5f, ctx.box.bottom + 2 + ctx.arrPadding.at(DIR_BOTTOM)), szDistance, colPrimary, DRAW_TEXT_OUTLINE, colOutline);
+		D::AddText(F::FatherBold, 12.f, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecDistanceSize.x * 0.5f, ctx.box.bottom + 2 + ctx.arrPadding.at(DIR_BOTTOM)), szDistance, colPrimary, DRAW_TEXT_OUTLINE, colOutline);
 		ctx.arrPadding.at(DIR_BOTTOM) += vecDistanceSize.y;
 	}
 }
@@ -1043,16 +1132,16 @@ void CVisuals::Player(CBaseEntity* pLocal, CBaseEntity* pEntity, Context_t& ctx,
 
 		const char* const szBot = XorStr("[BOT]");
 		ImVec2 vecBotSize{ };
-		const ImVec2 vecNameSize = F::SmallestPixel->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szName.c_str());
+		const ImVec2 vecNameSize = F::FatherBold->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szName.c_str());
 
 		// add prefix for bots
 		if (playerInfo.bFakePlayer)
 		{
-			vecBotSize = F::SmallestPixel->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szBot);
-			D::AddText(F::SmallestPixel, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f + 1 + vecNameSize.x * 0.5f - vecBotSize.x * 0.5f, ctx.box.top - 2 - vecBotSize.y - ctx.arrPadding.at(DIR_TOP)), szBot, Color(140, 140, 140), DRAW_TEXT_OUTLINE, colOutline);
+			vecBotSize = F::FatherBold->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szBot);
+			D::AddText(F::FatherBold, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f + 1 + vecNameSize.x * 0.5f - vecBotSize.x * 0.5f, ctx.box.top - 2 - vecBotSize.y - ctx.arrPadding.at(DIR_TOP)), szBot, Color(140, 140, 140), DRAW_TEXT_OUTLINE, colOutline);
 		}
 
-		D::AddText(F::SmallestPixel, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecNameSize.x * 0.5f - vecBotSize.x * 0.5f, ctx.box.top - 2 - vecNameSize.y - ctx.arrPadding.at(DIR_TOP)), szName, colInfo, DRAW_TEXT_OUTLINE, colOutline);
+		D::AddText(F::FatherBold, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecNameSize.x * 0.5f - vecBotSize.x * 0.5f, ctx.box.top - 2 - vecNameSize.y - ctx.arrPadding.at(DIR_TOP)), szName, colInfo, DRAW_TEXT_OUTLINE, colOutline);
 		ctx.arrPadding.at(DIR_TOP) += vecNameSize.y;
 	}
 	#pragma endregion
@@ -1105,8 +1194,8 @@ void CVisuals::Player(CBaseEntity* pLocal, CBaseEntity* pEntity, Context_t& ctx,
 	{
 		const int iDistance = static_cast<int>(M_INCH2METRE(flDistance));
 		std::string szDistance = std::to_string(iDistance).append(XorStr("M"));
-		const ImVec2 vecDistanceSize = F::SmallestPixel->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szDistance.c_str());
-		D::AddText(F::SmallestPixel, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecDistanceSize.x * 0.5f, ctx.box.bottom + 2 + ctx.arrPadding.at(DIR_BOTTOM)), szDistance, colInfo, DRAW_TEXT_OUTLINE, colOutline);
+		const ImVec2 vecDistanceSize = F::FatherBold->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szDistance.c_str());
+		D::AddText(F::FatherBold, flFontSize, ImVec2(ctx.box.left + ctx.box.width * 0.5f - vecDistanceSize.x * 0.5f, ctx.box.bottom + 2 + ctx.arrPadding.at(DIR_BOTTOM)), szDistance, colInfo, DRAW_TEXT_OUTLINE, colOutline);
 		ctx.arrPadding.at(DIR_BOTTOM) += vecDistanceSize.y;
 	}
 	#pragma endregion
@@ -1123,8 +1212,8 @@ void CVisuals::Player(CBaseEntity* pLocal, CBaseEntity* pEntity, Context_t& ctx,
 	if (C::Get<bool>(Vars.bEspMainPlayerMoney))
 	{
 		std::string szMoney = std::to_string(pEntity->GetMoney()).insert(0U, XorStr("$"));
-		const ImVec2 vecMoneySize = F::SmallestPixel->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szMoney.c_str());
-		D::AddText(F::SmallestPixel, flFontSize, ImVec2(ctx.box.left - 2 - vecMoneySize.x - ctx.arrPadding.at(DIR_LEFT), ctx.box.top), szMoney, Color(140, 195, 75), DRAW_TEXT_OUTLINE, colOutline);
+		const ImVec2 vecMoneySize = F::FatherBold->CalcTextSizeA(flFontSize, FLT_MAX, 0.0f, szMoney.c_str());
+		D::AddText(F::FatherBold, flFontSize, ImVec2(ctx.box.left - 2 - vecMoneySize.x - ctx.arrPadding.at(DIR_LEFT), ctx.box.top), szMoney, Color(140, 195, 75), DRAW_TEXT_OUTLINE, colOutline);
 		ctx.arrPadding.at(DIR_LEFT) += vecMoneySize.x;
 	}
 	#pragma endregion

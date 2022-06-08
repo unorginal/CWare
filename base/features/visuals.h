@@ -50,16 +50,16 @@ public:
 		 */
 		arrMaterials =
 		{
-			std::make_pair(CreateMaterial(XorStr("qo0_players"), XorStr("VertexLitGeneric")),
-			CreateMaterial(XorStr("qo0_players_flat"), XorStr("UnlitGeneric"))),
+			std::make_pair(CreateMaterial(XorStr("ctwr_players"), XorStr("VertexLitGeneric")),
+			CreateMaterial(XorStr("ctwr_players_flat"), XorStr("UnlitGeneric"))),
 
-			std::make_pair(CreateMaterial(XorStr("qo0_viewmodel"), XorStr("VertexLitGeneric")),
-			CreateMaterial(XorStr("qo0_viewmodel_flat"), XorStr("UnlitGeneric"))),
+			std::make_pair(CreateMaterial(XorStr("ctwr_viewmodel"), XorStr("VertexLitGeneric")),
+			CreateMaterial(XorStr("ctwr_viewmodel_flat"), XorStr("UnlitGeneric"))),
 
-			std::make_pair(CreateMaterial(XorStr("qo0_reflective"), XorStr("VertexLitGeneric"), XorStr("vgui/white"), XorStr("env_cubemap")),
-			CreateMaterial(XorStr("qo0_glow"), XorStr("VertexLitGeneric"), XorStr("vgui/white"), XorStr("models/effects/cube_white"))),
+			std::make_pair(CreateMaterial(XorStr("ctwr_reflective"), XorStr("VertexLitGeneric"), XorStr("vgui/white"), XorStr("env_cubemap")),
+			CreateMaterial(XorStr("ctwr_glow"), XorStr("VertexLitGeneric"), XorStr("vgui/white"), XorStr("models/effects/cube_white"))),
 
-			std::make_pair(CreateMaterial(XorStr("qo0_scroll"), XorStr("VertexLitGeneric"), XorStr("dev/screenhighlight_pulse"), "", false, false, szScrollProxies),
+			std::make_pair(CreateMaterial(XorStr("ctwr_scroll"), XorStr("VertexLitGeneric"), XorStr("dev/screenhighlight_pulse"), "", false, false, szScrollProxies),
 			I::MaterialSystem->FindMaterial(XorStr("models/inventory_items/hydra_crystal/hydra_crystal_detail"), TEXTURE_GROUP_OTHER))
 		};
 
@@ -84,6 +84,8 @@ public:
 	bool Chams(CBaseEntity* pLocal, DrawModelResults_t* pResults, const DrawModelInfo_t& info, matrix3x4_t* pBoneToWorld, float* flFlexWeights, float* flFlexDelayedWeights, const Vector& vecModelOrigin, int nFlags);
 	/* glow effect on entities like while spectating */
 	void Glow(CBaseEntity* pLocal);
+	void Fullbright(bool doBrightness);
+	void Skybox(int type);
 
 private:
 	enum EPaddingDirection : unsigned int

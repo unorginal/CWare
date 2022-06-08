@@ -44,7 +44,8 @@ Index of this file:
 #if defined(_MSC_VER) && _MSC_VER <= 1500 // MSVC 2008 or earlier
 #include <stddef.h>     // intptr_t
 #else
-#include <stdint.h>     // intptr_t
+#include <stdint.h>
+#include <string>// intptr_t
 #endif
 
 // Visual Studio warnings
@@ -672,9 +673,58 @@ bool ImGui::ButtonEx(const char* label, const ImVec2& size_arg, ImGuiButtonFlags
     return pressed;
 }
 
+bool ImGui::ButtonExColor(const char* label, const ImVec2& size_arg, ImU32 color, ImGuiButtonFlags flags)
+{
+    ImGuiWindow* window = GetCurrentWindow();
+    if (window->SkipItems)
+        return false;
+
+    ImGuiContext& g = *GImGui;
+    const ImGuiStyle& style = g.Style;
+    const ImGuiID id = window->GetID(label);
+    const ImVec2 label_size = CalcTextSize(label, NULL, true);
+
+    ImVec2 pos = window->DC.CursorPos;
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset) // Try to vertically align buttons that are smaller/have no padding so that text baseline matches (bit hacky, since it shouldn't be a flag)
+        pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+    ImVec2 size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+    const ImRect bb(pos, pos + size);
+    ItemSize(size, style.FramePadding.y);
+    if (!ItemAdd(bb, id))
+        return false;
+
+    if (window->DC.ItemFlags & ImGuiItemFlags_ButtonRepeat)
+        flags |= ImGuiButtonFlags_Repeat;
+    bool hovered, held;
+    bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
+    ImDrawList* windowDrawList = window->DrawList;
+    // Set the cursor to handle case where the user called SetNextWindowPos()+BeginChild() manually.
+    // While this is not really documented/defined, it seems that the expected thing to do.
+    windowDrawList->AddRectFilled(ImVec2(pos.x+2, pos.y+size.y - 2), ImVec2(pos.x-2 + size.x, pos.y + size.y+2), color);
+
+    // Render
+    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+    RenderNavHighlight(bb, id);
+    RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding);
+    RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+    // Automatically close popups
+    //if (pressed && !(flags & ImGuiButtonFlags_DontClosePopups) && (window->Flags & ImGuiWindowFlags_Popup))
+    //    CloseCurrentPopup();
+
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, window->DC.LastItemStatusFlags);
+    return pressed;
+}
+
+
 bool ImGui::Button(const char* label, const ImVec2& size_arg)
 {
     return ButtonEx(label, size_arg, 0);
+}
+
+bool ImGui::ButtonUnderline(const char* label, const ImVec2& size_arg, ImU32 color) {
+    return ButtonExColor(label, size_arg, color, 0);
 }
 
 // Small buttons fits within text without additional vertical spacing.
