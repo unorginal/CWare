@@ -19,7 +19,6 @@ public:
 	virtual void StartLoadingScreenForCommand(const char* szCommand) = 0;
 	virtual void StartLoadingScreenForKeyValues(CKeyValues* pKeyValues) = 0;
 	virtual void UpdateProgressBar(float flProgress, const char* szStatusText, bool) = 0;
-	virtual void SetShowProgressText(bool bShow) = 0;
 	virtual void UpdateSecondaryProgressBar(float flProgress, const wchar_t* wStatusText) = 0;
 	virtual void SetProgressLevelName(const char* szLevelName) = 0;
 	virtual void ShowMessageDialog(const unsigned int uType, IVPanel* pOwner) = 0;

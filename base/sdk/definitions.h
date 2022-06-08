@@ -45,74 +45,74 @@ enum ELifeState : int
 /* baseentity flags */
 enum EFlags : int
 {
-	FL_ONGROUND = (1 << 0),
-	FL_DUCKING = (1 << 1),
-	FL_ANIMDUCKING = (1 << 2),
-	FL_WATERJUMP = (1 << 3),
-	FL_ONTRAIN = (1 << 4),
-	FL_INRAIN = (1 << 5),
-	FL_FROZEN = (1 << 6),
-	FL_ATCONTROLS = (1 << 7),
-	FL_CLIENT = (1 << 8),
-	FL_FAKECLIENT = (1 << 9),
-	FL_INWATER = (1 << 10),
-	FL_FLY = (1 << 11),
-	FL_SWIM = (1 << 12),
-	FL_CONVEYOR = (1 << 13),
-	FL_NPC = (1 << 14),
-	FL_GODMODE = (1 << 15),
-	FL_NOTARGET = (1 << 16),
-	FL_AIMTARGET = (1 << 17),
-	FL_PARTIALGROUND = (1 << 18),
-	FL_STATICPROP = (1 << 19),
-	FL_GRAPHED = (1 << 20),
-	FL_GRENADE = (1 << 21),
-	FL_STEPMOVEMENT = (1 << 22),
-	FL_DONTTOUCH = (1 << 23),
-	FL_BASEVELOCITY = (1 << 24),
-	FL_WORLDBRUSH = (1 << 25),
-	FL_OBJECT = (1 << 26),
-	FL_KILLME = (1 << 27),
-	FL_ONFIRE = (1 << 28),
-	FL_DISSOLVING = (1 << 29),
-	FL_TRANSRAGDOLL = (1 << 30),
-	FL_UNBLOCKABLE_BY_PLAYER = (1 << 31)
+	FL_ONGROUND =				(1 << 0),
+	FL_DUCKING =				(1 << 1),
+	FL_ANIMDUCKING =			(1 << 2),
+	FL_WATERJUMP =				(1 << 3),
+	FL_ONTRAIN =				(1 << 4),
+	FL_INRAIN =					(1 << 5),
+	FL_FROZEN =					(1 << 6),
+	FL_ATCONTROLS =				(1 << 7),
+	FL_CLIENT =					(1 << 8),
+	FL_FAKECLIENT =				(1 << 9),
+	FL_INWATER =				(1 << 10),
+	FL_FLY =					(1 << 11),
+	FL_SWIM =					(1 << 12),
+	FL_CONVEYOR =				(1 << 13),
+	FL_NPC =					(1 << 14),
+	FL_GODMODE =				(1 << 15),
+	FL_NOTARGET =				(1 << 16),
+	FL_AIMTARGET =				(1 << 17),
+	FL_PARTIALGROUND =			(1 << 18),
+	FL_STATICPROP =				(1 << 19),
+	FL_GRAPHED =				(1 << 20),
+	FL_GRENADE =				(1 << 21),
+	FL_STEPMOVEMENT =			(1 << 22),
+	FL_DONTTOUCH =				(1 << 23),
+	FL_BASEVELOCITY =			(1 << 24),
+	FL_WORLDBRUSH =				(1 << 25),
+	FL_OBJECT =					(1 << 26),
+	FL_KILLME =					(1 << 27),
+	FL_ONFIRE =					(1 << 28),
+	FL_DISSOLVING =				(1 << 29),
+	FL_TRANSRAGDOLL =			(1 << 30),
+	FL_UNBLOCKABLE_BY_PLAYER =	(1 << 31)
 };
 
 enum EEFlags : int
 {
-	EFL_KILLME = (1 << 0),
-	EFL_DORMANT = (1 << 1),
-	EFL_NOCLIP_ACTIVE = (1 << 2),
-	EFL_SETTING_UP_BONES = (1 << 3),
+	EFL_KILLME =				(1 << 0),
+	EFL_DORMANT =				(1 << 1),
+	EFL_NOCLIP_ACTIVE =			(1 << 2),
+	EFL_SETTING_UP_BONES =		(1 << 3),
 	EFL_KEEP_ON_RECREATE_ENTITIES = (1 << 4),
-	EFL_DIRTY_SHADOWUPDATE = (1 << 5),
-	EFL_NOTIFY = (1 << 6),
-	EFL_FORCE_CHECK_TRANSMIT = (1 << 7),
-	EFL_BOT_FROZEN = (1 << 8),
-	EFL_SERVER_ONLY = (1 << 9),
-	EFL_NO_AUTO_EDICT_ATTACH = (1 << 10),
-	EFL_DIRTY_ABSTRANSFORM = (1 << 11),
-	EFL_DIRTY_ABSVELOCITY = (1 << 12),
-	EFL_DIRTY_ABSANGVELOCITY = (1 << 13),
+	EFL_DIRTY_SHADOWUPDATE =	(1 << 5),
+	EFL_NOTIFY =				(1 << 6),
+	EFL_FORCE_CHECK_TRANSMIT =	(1 << 7),
+	EFL_BOT_FROZEN =			(1 << 8),
+	EFL_SERVER_ONLY =			(1 << 9),
+	EFL_NO_AUTO_EDICT_ATTACH =	(1 << 10),
+	EFL_DIRTY_ABSTRANSFORM =	(1 << 11),
+	EFL_DIRTY_ABSVELOCITY =		(1 << 12),
+	EFL_DIRTY_ABSANGVELOCITY =	(1 << 13),
 	EFL_DIRTY_SURROUNDING_COLLISION_BOUNDS = (1 << 14),
 	EFL_DIRTY_SPATIAL_PARTITION = (1 << 15),
-	EFL_HAS_PLAYER_CHILD = (1 << 16),
-	EFL_IN_SKYBOX = (1 << 17),
+	EFL_HAS_PLAYER_CHILD =		(1 << 16),
+	EFL_IN_SKYBOX =				(1 << 17),
 	EFL_USE_PARTITION_WHEN_NOT_SOLID = (1 << 18),
-	EFL_TOUCHING_FLUID = (1 << 19),
+	EFL_TOUCHING_FLUID =		(1 << 19),
 	EFL_IS_BEING_LIFTED_BY_BARNACLE = (1 << 20),
-	EFL_NO_ROTORWASH_PUSH = (1 << 21),
-	EFL_NO_THINK_FUNCTION = (1 << 22),
+	EFL_NO_ROTORWASH_PUSH =		(1 << 21),
+	EFL_NO_THINK_FUNCTION =		(1 << 22),
 	EFL_NO_GAME_PHYSICS_SIMULATION = (1 << 23),
-	EFL_CHECK_UNTOUCH = (1 << 24),
-	EFL_DONTBLOCKLOS = (1 << 25),
-	EFL_DONTWALKON = (1 << 26),
-	EFL_NO_DISSOLVE = (1 << 27),
+	EFL_CHECK_UNTOUCH =			(1 << 24),
+	EFL_DONTBLOCKLOS =			(1 << 25),
+	EFL_DONTWALKON =			(1 << 26),
+	EFL_NO_DISSOLVE =			(1 << 27),
 	EFL_NO_MEGAPHYSCANNON_RAGDOLL = (1 << 28),
 	EFL_NO_WATER_VELOCITY_CHANGE = (1 << 29),
 	EFL_NO_PHYSCANNON_INTERACTION = (1 << 30),
-	EFL_NO_DAMAGE_FORCES = (1 << 31)
+	EFL_NO_DAMAGE_FORCES =		(1 << 31)
 };
 
 enum EMoveType : int
@@ -140,48 +140,48 @@ enum ESolidType : int
 	SOLID_BBOX,		// an aabb
 	SOLID_OBB,		// an obb (not implemented yet)
 	SOLID_OBB_YAW,	// an obb, constrained so that it can only yaw
-	SOLID_CUSTOM,	// always call into the entity for tests
+	SOLID_CUSTOM ,	// always call into the entity for tests
 	SOLID_VPHYSICS,	// solid vphysics object, get vcollide from the model and collide with that
 	SOLID_LAST
 };
 
 enum ESolidFlags : unsigned int
 {
-	FSOLID_CUSTOMRAYTEST = 0x0001,	// ignore solid type + always call into the entity for ray tests
-	FSOLID_CUSTOMBOXTEST = 0x0002,	// ignore solid type + always call into the entity for swept box tests
-	FSOLID_NOT_SOLID = 0x0004,	// are we currently not solid?
-	FSOLID_TRIGGER = 0x0008,	// this is something may be collideable but fires touch functions
-	FSOLID_NOT_STANDABLE = 0x0010,	// you can't stand on this
-	FSOLID_VOLUME_CONTENTS = 0x0020,	// contains volumetric contents (like water)
-	FSOLID_FORCE_WORLD_ALIGNED = 0x0040,	// forces the collision rep to be world-aligned even if it's solid_bsp or solid_vphysics
-	FSOLID_USE_TRIGGER_BOUNDS = 0x0080,	// uses a special trigger bounds separate from the normal obb
-	FSOLID_ROOT_PARENT_ALIGNED = 0x0100,	// collisions are defined in root parent's local coordinate space
-	FSOLID_TRIGGER_TOUCH_DEBRIS = 0x0200,	// this trigger will touch debris objects
-	FSOLID_MAX_BITS = 10
+	FSOLID_CUSTOMRAYTEST =			0x0001,	// ignore solid type + always call into the entity for ray tests
+	FSOLID_CUSTOMBOXTEST =			0x0002,	// ignore solid type + always call into the entity for swept box tests
+	FSOLID_NOT_SOLID =				0x0004,	// are we currently not solid?
+	FSOLID_TRIGGER =				0x0008,	// this is something may be collideable but fires touch functions
+	FSOLID_NOT_STANDABLE =			0x0010,	// you can't stand on this
+	FSOLID_VOLUME_CONTENTS =		0x0020,	// contains volumetric contents (like water)
+	FSOLID_FORCE_WORLD_ALIGNED =	0x0040,	// forces the collision rep to be world-aligned even if it's solid_bsp or solid_vphysics
+	FSOLID_USE_TRIGGER_BOUNDS =		0x0080,	// uses a special trigger bounds separate from the normal obb
+	FSOLID_ROOT_PARENT_ALIGNED =	0x0100,	// collisions are defined in root parent's local coordinate space
+	FSOLID_TRIGGER_TOUCH_DEBRIS =	0x0200,	// this trigger will touch debris objects
+	FSOLID_MAX_BITS =				10
 };
 
 enum EEffectFlags : unsigned int
 {
-	EF_BONEMERGE = 0x001,	// performs bone merge on client side
-	EF_BRIGHTLIGHT = 0x002,	// dlight centered at entity origin
-	EF_DIMLIGHT = 0x004,	// player flashlight
-	EF_NOINTERP = 0x008,	// don't interpolate the next frame
-	EF_NOSHADOW = 0x010,	// don't cast no shadow
-	EF_NODRAW = 0x020,	// don't draw entity
-	EF_NORECEIVESHADOW = 0x040,	// don't receive no shadow
-	EF_BONEMERGE_FASTCULL = 0x080,	// for use with EF_BONEMERGE. if this is set, then it places this ent's origin at its
+	EF_BONEMERGE =					0x001,	// performs bone merge on client side
+	EF_BRIGHTLIGHT =				0x002,	// dlight centered at entity origin
+	EF_DIMLIGHT =					0x004,	// player flashlight
+	EF_NOINTERP =					0x008,	// don't interpolate the next frame
+	EF_NOSHADOW =					0x010,	// don't cast no shadow
+	EF_NODRAW =						0x020,	// don't draw entity
+	EF_NORECEIVESHADOW =			0x040,	// don't receive no shadow
+	EF_BONEMERGE_FASTCULL =			0x080,	// for use with EF_BONEMERGE. if this is set, then it places this ent's origin at its
 											// parent and uses the parent's bbox + the max extents of the aiment.
 											// otherwise, it sets up the parent's bones every frame to figure out where to place
 											// the aiment, which is inefficient because it'll setup the parent's bones even if
 											// the parent is not in the pvs.
-											EF_ITEM_BLINK = 0x100,	// blink an item so that the user notices it.
-											EF_PARENT_ANIMATES = 0x200,	// always assume that the parent entity is animating
-											EF_MARKED_FOR_FAST_REFLECTION = 0x400,	// marks an entity for reflection rendering when using $reflectonlymarkedentities material variable
-											EF_NOSHADOWDEPTH = 0x800,	// indicates this entity does not render into any shadow depthmap
-											EF_SHADOWDEPTH_NOCACHE = 0x1000,	// indicates this entity cannot be cached in shadow depthmap and should render every frame
-											EF_NOFLASHLIGHT = 0x2000,
-											EF_NOCSM = 0x4000,	// indicates this entity does not render into the cascade shadow depthmap
-											EF_MAX_BITS = 15
+	EF_ITEM_BLINK =					0x100,	// blink an item so that the user notices it.
+	EF_PARENT_ANIMATES =			0x200,	// always assume that the parent entity is animating
+	EF_MARKED_FOR_FAST_REFLECTION = 0x400,	// marks an entity for reflection rendering when using $reflectonlymarkedentities material variable
+	EF_NOSHADOWDEPTH =				0x800,	// indicates this entity does not render into any shadow depthmap
+	EF_SHADOWDEPTH_NOCACHE =		0x1000,	// indicates this entity cannot be cached in shadow depthmap and should render every frame
+	EF_NOFLASHLIGHT =				0x2000,
+	EF_NOCSM =						0x4000,	// indicates this entity does not render into the cascade shadow depthmap
+	EF_MAX_BITS =					15
 };
 
 enum ECollisionGroup : int
@@ -222,10 +222,10 @@ enum ECollisionGroup : int
 
 enum EMultiplayerPhysicsMode : int
 {
-	PHYSICS_MULTIPLAYER_AUTODETECT = 0,	// use multiplayer physics mode as defined in model prop data
-	PHYSICS_MULTIPLAYER_SOLID = 1,	// solid, pushes player away
-	PHYSICS_MULTIPLAYER_NON_SOLID = 2,	// nonsolid, but pushed by player
-	PHYSICS_MULTIPLAYER_CLIENTSIDE = 3	// clientside only, nonsolid
+	PHYSICS_MULTIPLAYER_AUTODETECT =	0,	// use multiplayer physics mode as defined in model prop data
+	PHYSICS_MULTIPLAYER_SOLID =			1,	// solid, pushes player away
+	PHYSICS_MULTIPLAYER_NON_SOLID =		2,	// nonsolid, but pushed by player
+	PHYSICS_MULTIPLAYER_CLIENTSIDE =	3	// clientside only, nonsolid
 };
 
 /* hitgroup standarts */

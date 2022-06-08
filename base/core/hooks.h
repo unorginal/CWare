@@ -7,9 +7,9 @@
 #include "netvar.h"
 // used: baseclasses
 #include "interfaces.h"
-#ifndef FASTCALL
+
 #define FASTCALL __fastcall
-#endif
+#define STDCALL __stdcall
 
 /*
 * VTABLE INDEXES
@@ -17,7 +17,6 @@
 */
 namespace VTABLE
 {
-	// work with namespace cuz if use enum class need additional convert to int
 	enum
 	{
 		/* directx table */
@@ -25,7 +24,11 @@ namespace VTABLE
 		ENDSCENE = 42,
 		RESETEX = 132,
 
+		/* keyvaluessystem table */
+		ALLOCKEYVALUESMEMORY = 1,
+
 		/* client table */
+		CREATEMOVE = 22,
 		FRAMESTAGENOTIFY = 37,
 
 		/* panel table */
@@ -34,7 +37,6 @@ namespace VTABLE
 		/* clientmode table */
 		OVERRIDEVIEW = 18,
 		OVERRIDEMOUSEINPUT = 23,
-		CREATEMOVE = 24,
 		GETVIEWMODELFOV = 35,
 		DOPOSTSCREENEFFECTS = 44,
 
@@ -78,15 +80,10 @@ namespace VTABLE
 
 		/* convar table */
 		GETBOOL = 13,
-		EYEANGLES = 167,
+
 		/* netchannel table */
 		SENDNETMSG = 40,
-		SENDDATAGRAM = 46,
-
-		/* engine table */
-		FIREEVENTS = 59,
-
-		HLTV = 93,
+		SENDDATAGRAM = 46
 	};
 }
 
@@ -98,10 +95,11 @@ namespace DTR
 {
 	inline CDetourHook Reset;
 	inline CDetourHook EndScene;
+	inline CDetourHook AllocKeyValuesMemory;
+	inline CDetourHook CreateMoveProxy;
 	inline CDetourHook FrameStageNotify;
 	inline CDetourHook OverrideView;
 	inline CDetourHook OverrideMouseInput;
-	inline CDetourHook CreateMove;
 	inline CDetourHook SendNetMsg;
 	inline CDetourHook SendDatagram;
 	inline CDetourHook GetViewModelFOV;
@@ -117,15 +115,6 @@ namespace DTR
 	inline CDetourHook LockCursor;
 	inline CDetourHook PlaySoundSurface;
 	inline CDetourHook SvCheatsGetBool;
-	inline CDetourHook GetViewAngles;
-	inline CDetourHook CLMove;
-	inline CDetourHook FireEvents;
-	inline CDetourHook IsHLTV;
-	inline CDetourHook DoBoneProcessing;
-	inline CDetourHook DoProceduralFootPlant;
-	inline CDetourHook ShouldSkipAnimationFrame;
-	inline CDetourHook BuildTransformations;
-	inline CDetourHook CheckForSequenceChange;
 }
 
 /*
@@ -142,7 +131,8 @@ namespace H
 	/* [type][call]		hk[name] (args...) */
 	long	D3DAPI		hkReset(IDirect3DDevice9* pDevice, D3DPRESENT_PARAMETERS* pPresentationParameters);
 	long	D3DAPI		hkEndScene(IDirect3DDevice9* pDevice);
-	bool	FASTCALL	hkCreateMove(IClientModeShared* thisptr, int edx, float flInputSampleTime, CUserCmd* pCmd);
+	void*	FASTCALL	hkAllocKeyValuesMemory(IKeyValuesSystem* thisptr, int edx, int iSize);
+	void	FASTCALL	hkCreateMoveProxy(IBaseClientDll* thisptr, int edx, int nSequenceNumber, float flInputSampleFrametime, bool bIsActive);
 	void	FASTCALL	hkPaintTraverse(ISurface* thisptr, int edx, unsigned int uPanel, bool bForceRepaint, bool bForce);
 	void	FASTCALL	hkPlaySound(ISurface* thisptr, int edx, const char* szFileName);
 	void	FASTCALL	hkLockCursor(ISurface* thisptr, int edx);
@@ -162,16 +152,6 @@ namespace H
 	int		FASTCALL	hkRetrieveMessage(ISteamGameCoordinator* thisptr, int edx, std::uint32_t* puMsgType, void* pDest, std::uint32_t uDest, std::uint32_t* puMsgSize);
 	bool	FASTCALL	hkSvCheatsGetBool(CConVar* thisptr, int edx);
 	long	CALLBACK	hkWndProc(HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
-	QAngle* FASTCALL    hkGetViewAngles(CBaseEntity* thisptr, void* edx);
-	void                hkCLMove(float AccumulatedExtraSamples, bool FinalTick);
-	bool    FASTCALL	hkIsHLTV(void* this_pointer, void* edx);
-	void*   FASTCALL    hkFireEvents(void* ecx, void* edx);
-	bool    FASTCALL    hkDoBoneProcessing(void* this_pointer, void* edx, matrix3x4a_t* pBoneToWorldOut, int nMaxBones, int boneMask, float currentTime);
-	void    FASTCALL    hkDoProceduralFootPlant(void* this_pointer, void* edx, matrix3x4a_t boneToWorld[], void* pLeftFootChain, void* pRightFootChain, void* pos[]);
-	bool    FASTCALL    hkShouldSkipAnimationFrame(void* this_pointer, void* edx);
-	void*   FASTCALL    hkBuildTransformations(void* this_pointer, void* edx, void* hdr, void* pos, void* q, const void* camera_transform, int bone_mask, void* bone_computed);
-	void    FASTCALL    hkCheckForSequenceChange(void* this_pointer, void* edx, void* hdr, int cur_sequence, bool force_new_sequence, bool interpolate);
-
 }
 
 /*

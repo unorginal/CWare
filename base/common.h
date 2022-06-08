@@ -103,8 +103,7 @@
 #include "../dependencies/imgui/dx9/imgui_impl_dx9.h"
 #include "../dependencies/imgui/win32/imgui_impl_win32.h"
 
-/* formatting library */
-// @credits: https://github.com/fmtlib/fmt/
+// used: time_t, tm, std::time
 #include <chrono>
 
 // used: ns,ms,s,m,h time literals

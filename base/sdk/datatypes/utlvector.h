@@ -37,7 +37,6 @@ public:
 		return pMemory.Base() + iSize;
 	}
 
-
 	auto begin() const noexcept
 	{
 		return pMemory.Base();
