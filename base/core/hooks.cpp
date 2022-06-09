@@ -29,6 +29,7 @@
 #include "../features/visuals.h"
 #include "../features/misc.h"
 #include "../features/skinchanger.h"
+#include "../features/resolver.h"
 
 static constexpr std::array<const char*, 3U> arrSmokeMaterials =
 {
@@ -257,11 +258,16 @@ static void STDCALL CreateMove(int nSequenceNumber, float flInputSampleFrametime
 
 	CPrediction::Get().Start(pCmd, pLocal);
 	{
+		if (C::Get<bool>(Vars.bNoRecoilHax) && pLocal->IsAlive()) {//(pCmd->iButtons & IN_ATTACK && C::Get<bool>(Vars.bNoRecoilHax)) {
+			static CConVar* weapon_recoil_scale = I::ConVar->FindVar(XorStr("weapon_recoil_scale"));
+			pCmd->angViewPoint.x -= (pLocal->GetPunch().x * weapon_recoil_scale->GetFloat());
+			pCmd->angViewPoint.y -= (pLocal->GetPunch().y * weapon_recoil_scale->GetFloat());
+		}
 		if (C::Get<bool>(Vars.bMiscAutoPistol))
 			CMiscellaneous::Get().AutoPistol(pCmd, pLocal);
 
-		if (C::Get<bool>(Vars.bMiscFakeLag) || C::Get<bool>(Vars.bAntiAim))
-			//CMiscellaneous::Get().FakeLag(pCmd, pLocal, bSendPacket);
+		if (C::Get<bool>(Vars.bMiscFakeLag))
+			CMiscellaneous::Get().FakeLag(pCmd, pLocal, bSendPacket);
 
 		if (C::Get<bool>(Vars.bRage))
 			CRageBot::Get().Run(pCmd, pLocal, bSendPacket);
@@ -416,7 +422,17 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * data has been received and we are going to start calling postdataupdate
 		 * e.g. resolver or skinchanger and other visuals
 		 */
+		if (C::Get<bool>(Vars.bResolver)) {
 
+			for (int i = 1; i <= I::Globals->nMaxClients; i++)
+			{
+				CBaseEntity* pEntity = I::ClientEntityList->Get<CBaseEntity>(i);
+				if (!pEntity) continue;
+				if (!pEntity->IsDormant() && pEntity->IsAlive() && pEntity != G::pLocal && pEntity->GetTeam() != G::pLocal->GetTeam()) {
+					CResolver::Get().Run(pEntity);
+				}
+			}
+		}
 		break;
 	}
 	case FRAME_NET_UPDATE_POSTDATAUPDATE_END:
@@ -443,7 +459,15 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * start rendering the scene
 		 * e.g. remove visual punch, thirdperson, other render/update stuff
 		 */
+		for (int i = 1; i <= I::Globals->nMaxClients; i++)
+		{
+			if (i == I::Engine->GetLocalPlayer()) continue;
+			CBaseEntity* pEntity = I::ClientEntityList->Get<CBaseEntity>(i);
+			if (!pEntity) continue;
+			*(int*)((uintptr_t)pEntity + 0xA30) = I::Globals->iFrameCount; //we'll skip occlusion checks now
+			pEntity->GetOcclusionFlags() = 0;
 
+		}
 		 // set max flash alpha
 		*pLocal->GetFlashMaxAlpha() = C::Get<bool>(Vars.bWorld) ? C::Get<int>(Vars.iWorldMaxFlash) * 2.55f : 255.f;
 
@@ -480,6 +504,11 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 			// my solution is here cuz camera offset is dynamically by standard functions without any garbage in overrideview hook
 			I::Input->bCameraInThirdPerson = bThirdPerson && pLocal->IsAlive() && !I::Engine->IsTakingScreenshot();
 			I::Input->vecCameraOffset.z = bThirdPerson ? C::Get<float>(Vars.flWorldThirdPersonOffset) : 150.f;
+			if (bThirdPerson) {
+				QAngle viewAngle = G::pCmd->angViewPoint;
+				I::Prediction->SetLocalViewAngles(viewAngle);
+				G::pLocal->UpdateClientSideAnimations();
+			}
 		}
 
 		break;
@@ -491,6 +520,10 @@ void FASTCALL H::hkFrameStageNotify(IBaseClientDll* thisptr, int edx, EClientFra
 		 * here we can restore our modified things
 		 */
 
+		if (G::pLocal != nullptr) {
+			//CVisuals::Get().Skybox(C::Get<int>(Vars.iWorldSkyType));
+			//CVisuals::Get().Fullbright(C::Get<bool>(Vars.bWorldFullbright));
+		}
 		 // restore original visual punch values
 		if (pLocal->IsAlive() && C::Get<bool>(Vars.bWorld) && C::Get<std::vector<bool>>(Vars.vecWorldRemovals).at(REMOVAL_PUNCH))
 		{

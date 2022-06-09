@@ -69,7 +69,7 @@ namespace L
 		// format time
 		const std::string szTime = std::vformat(XorStr("[{:%d-%m-%Y %X}] "), std::make_format_args(std::chrono::system_clock::now()));
 
-		#ifdef DEBUG_CONSOLE
+#ifdef DEBUG_CONSOLE
 		// print to console
 		SetConsoleTextAttribute(GetStdHandle(STD_OUTPUT_HANDLE), FOREGROUND_INTENSE_GREEN);
 		std::cout << szTime;
@@ -78,11 +78,11 @@ namespace L
 			std::cout << std::vformat(szText, std::make_format_args(argList...)) << std::endl;
 		else
 			std::cout << szText << std::endl;
-		#else
+#else
 		// print to file
 		if (ofsFile.is_open())
 			ofsFile << szTime << szText << std::endl;
-		#endif
+#endif
 	}
 
 	/*

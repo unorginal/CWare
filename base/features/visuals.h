@@ -84,8 +84,8 @@ public:
 	bool Chams(CBaseEntity* pLocal, DrawModelResults_t* pResults, const DrawModelInfo_t& info, matrix3x4_t* pBoneToWorld, float* flFlexWeights, float* flFlexDelayedWeights, const Vector& vecModelOrigin, int nFlags);
 	/* glow effect on entities like while spectating */
 	void Glow(CBaseEntity* pLocal);
-	void Fullbright(bool doBrightness);
-	void Skybox(int type);
+	//void Fullbright(bool doBrightness);
+	//void Skybox(int type);
 
 private:
 	enum EPaddingDirection : unsigned int

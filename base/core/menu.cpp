@@ -192,10 +192,10 @@ void W::MainWindow(IDirect3DDevice9* pDevice)
 		//ImGui::PopStyleColor(2);
 		ImGui::PopStyleVar(2);
 	}
-
+	
 	ImDrawList* pBackgroundDrawList = ImGui::GetBackgroundDrawList();
 	D::RenderDrawData(pBackgroundDrawList);
-	if (I::Engine->IsInGame()) {
+	if (!I::Engine->IsTakingScreenshot() && !I::Engine->IsDrawingLoadingImage()) {
 		if (bMainOpened || C::Get<bool>(Vars.bAlwaysShowFovCircle)) {
 			if (C::Get<int>(Vars.iAimbotType) == 0) {
 				ImGuiCol circleColor = C::Get<Color>(Vars.colFovCircle).GetU32();
@@ -203,7 +203,6 @@ void W::MainWindow(IDirect3DDevice9* pDevice)
 			}
 		}
 	}
-
 	// Always On Crosshair
 	if (!I::Engine->IsTakingScreenshot() && !I::Engine->IsDrawingLoadingImage() && I::Engine->IsInGame() && G::pLocal != nullptr && G::pLocal->IsAlive() && C::Get<bool>(Vars.bCrosshairAlwaysOn)) {
 		CBaseCombatWeapon* pWeapon = G::pLocal->GetWeapon();
@@ -240,7 +239,7 @@ void W::MainWindow(IDirect3DDevice9* pDevice)
 			}
 		}
 	}
-
+	
 	// Spectators List
 
 	ImGui::SetNextWindowPos(ImVec2(io.DisplaySize.x / 2, 200), ImGuiCond_Once, ImVec2(0.5f, 0.5f));
@@ -298,15 +297,15 @@ void W::MainWindow(IDirect3DDevice9* pDevice)
 			ImGui::End();
 		}
 	}
-	if (!I::Engine->IsTakingScreenshot() && !I::Engine->IsDrawingLoadingImage() && I::Engine->IsInGame() && G::pLocal->IsAlive() &&  C::Get<bool>(Vars.bShowSpread)) {
+		
+	/*if (!I::Engine->IsTakingScreenshot() && !I::Engine->IsDrawingLoadingImage() && I::Engine->IsInGame() && G::pLocal != nullptr && G::pLocal->IsAlive() && C::Get<bool>(Vars.bShowSpread)) {
 		ImGuiCol circleColor = C::Get<Color>(Vars.colFovCircle).GetU32();
 		CBaseCombatWeapon* pWeapon = G::pLocal->GetWeapon();
-		if (pWeapon && pWeapon != nullptr) {
+		if (pWeapon != nullptr) {
 			pBackgroundDrawList->AddCircleFilled(ImVec2(vecScreenSize.x * 0.5f, vecScreenSize.y * 0.5f), pWeapon->GetInaccuracy() * 500.0f, circleColor, 100);
 		}
-	}
+	}*/
 #pragma endregion
-
 #pragma region main_window
 	io.MouseDrawCursor = bMainOpened;
 
@@ -430,7 +429,7 @@ void T::RageBot()
 	ImU32 menuCol = C::Get<Color>(Vars.colMenuColor).GetU32();
 	ImGui::Columns(2, nullptr, false);
 	{
-		ImGui::BeginChildWithColor(XorStr("ragebot.aimbot"), "Ragebot", ImVec2(), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Anti-Aim"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::Checkbox(XorStr("Ragebot"), &C::Get<bool>(Vars.bRage));
@@ -528,7 +527,7 @@ void T::RageBot()
 	ImGui::NextColumn();
 	{
 		float flAntiAimTabSize = 0.f;
-		ImGui::BeginChildWithColor(XorStr("ragebot.antiaim"), "Extras", ImVec2(0, 0), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Extras"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 			ImGui::HotKey(XorStr("Dmg Override"), &C::Get<int>(Vars.iRageMinDamageOverrideKey));
 			ImGui::HotKey(XorStr("DoubleTap"), &C::Get<int>(Vars.iRageDoubleTapKey));
@@ -578,7 +577,7 @@ void T::AntiAim() {
 	}
 	ImGui::NextColumn();
 	{
-		ImGui::BeginChildWithColor(XorStr("ragebot.fakelag"), "Fakelag", ImVec2(0, 0), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("FakeLag"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::Checkbox("Fakelag", &C::Get<bool>(Vars.bMiscFakeLag));
@@ -599,11 +598,11 @@ void T::LegitBot()
 	{
 		ImGui::Spacing();
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 2.0f));
-		ImGui::BeginChild(XorStr("aimbot"), ImVec2());
+		ImGui::BeginChild(XorStr("Aimbot"), ImVec2(), true, ImGuiWindowFlags_None);
 		{
-			ImGui::PopFont();
-			ImGui::PushFont(F::ArialBold);
-			ImGui::Text("aimbot");
+			///ImGui::PopFont();
+			//ImGui::PushFont(F::ArialBold);
+			//ImGui::Text("aimbot");
 			ImGui::PopFont();
 			ImGui::PushFont(F::Tahoma);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
@@ -632,7 +631,7 @@ void T::LegitBot()
 	}
 	ImGui::NextColumn();
 	{
-		ImGui::BeginChildWithColor(XorStr("legitbot.triggerbot"), "Triggerbot", ImVec2(), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Triggerbot"), ImVec2(), true, ImGuiWindowFlags_None);
 		{
 			if (ImGui::BeginMenu(XorStr("Filters")))
 			{
@@ -665,7 +664,7 @@ void T::Visuals()
 	ImU32 menuCol = C::Get<Color>(Vars.colMenuColor).GetU32();
 	ImGui::Columns(2, nullptr, false);
 	{
-		ImGui::BeginChildWithColor(XorStr("visuals.esp"), "Visuals", ImVec2(0, 0), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Visuals"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 
 			//Esp tab system
@@ -828,7 +827,7 @@ void T::Visuals()
 	ImGui::NextColumn();
 	{
 		static float flWorldChildSize = 0.f;
-		ImGui::BeginChildWithColor(XorStr("visuals.world"), "World", ImVec2(0, flWorldChildSize), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("World"), ImVec2(0, flWorldChildSize), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::Checkbox(XorStr("night mode"), &C::Get<bool>(Vars.bWorldNightMode));
@@ -847,7 +846,7 @@ void T::Visuals()
 			flWorldChildSize = ImGui::GetCursorPosY() + style.ItemSpacing.y;
 			ImGui::EndChild();
 		}
-		ImGui::BeginChildWithColor(XorStr("visuals.screen"), "Screen", ImVec2(0, 0), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Screen"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::SliderFloat(XorStr("camera fov"), &C::Get<float>(Vars.flScreenCameraFOV), -89.f, 89.f, "%.1f\xC2\xB0");
@@ -879,7 +878,7 @@ void T::Miscellaneous()
 		static float flMovementChildSize = 0.f;
 		static float flOtherChildSize = 0.f;
 		ImU32 menuCol = C::Get<Color>(Vars.colMenuColor).GetU32();
-		ImGui::BeginChildWithColor(XorStr("misc.movement"), "Movement", ImVec2(0, flMovementChildSize), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Movement"), ImVec2(0, flMovementChildSize), true, ImGuiWindowFlags_None);
 		{
 			if (ImGui::BeginMenuBar())
 			{
@@ -896,7 +895,7 @@ void T::Miscellaneous()
 			flMovementChildSize = ImGui::GetCursorPosY() + style.ItemSpacing.y;
 			ImGui::EndChild();
 		}
-		ImGui::BeginChildWithColor(XorStr("misc.other"), "Other Options", ImVec2(), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Other Options"), ImVec2(0, flOtherChildSize), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::Checkbox(XorStr("auto accept"), &C::Get<bool>(Vars.bMiscAutoAccept));
@@ -920,7 +919,7 @@ void T::Miscellaneous()
 		static std::string szCurrentConfig = { };
 
 		static float flConfigChildSize = 0.f;
-		ImGui::BeginChildWithColor(XorStr("misc.config"), "Configs", ImVec2(0, flConfigChildSize), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Configs"), ImVec2(0, flConfigChildSize), true, ImGuiWindowFlags_None);
 		{
 			ImGui::Columns(2, XorStr("#CONFIG"), false);
 			{
@@ -1011,7 +1010,7 @@ void T::Miscellaneous()
 			flConfigChildSize = ImGui::GetCursorPosY() + style.ItemSpacing.y;
 			ImGui::EndChild();
 		}
-		ImGui::BeginChildWithColor(XorStr("misc.exploits"), "Exploits", ImVec2(0, 0), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Exploits"), ImVec2(0, 0), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			ImGui::Checkbox(XorStr("No Recoil"), &C::Get<bool>(Vars.bNoRecoilHax));
@@ -1079,7 +1078,7 @@ void T::MenuSettings() {
 	ImU32 menuCol = C::Get<Color>(Vars.colMenuColor).GetU32();
 	ImGui::Columns(2, nullptr, false);
 	{
-		ImGui::BeginChildWithColor(XorStr("lua.scripts"), "Scripts", ImVec2(), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Scripts"), ImVec2(), true, ImGuiWindowFlags_None);
 		{
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
 			if (ImGui::Button(XorStr("Refresh"))) {
@@ -1100,7 +1099,7 @@ void T::MenuSettings() {
 	}
 	ImGui::NextColumn();
 	{
-		ImGui::BeginChildWithColor(XorStr("misc.colors"), "Colors", ImVec2(), true, menuCol, ImGuiWindowFlags_None);
+		ImGui::BeginChild(XorStr("Colors"), ImVec2(), true, ImGuiWindowFlags_None);
 		{
 			const char* szColorNames[IM_ARRAYSIZE(arrColors)];
 			for (int i = 0; i < IM_ARRAYSIZE(arrColors); i++)

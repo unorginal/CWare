@@ -38,32 +38,32 @@
   logging.cpp
   math.cpp
   memory.cpp
-C:\Users\octav\Desktop\CWare\base\features\lagcompensation.cpp(67,27): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\lagcompensation.cpp(424,19): warning C4101: 'backup_layers': unreferenced local variable
-C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(72,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(73,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(182,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\legitbot.cpp(183,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(81,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(82,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(332,21): warning C4018: '<': signed/unsigned mismatch
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(486,16): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(493,16): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(510,55): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(512,52): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(626,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\ragebot.cpp(628,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(288,23): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\antiaim.cpp(291,24): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,85): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,79): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\features\misc.cpp(363,33): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(673,83): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(674,82): warning C4305: 'argument': truncation from 'double' to 'float'
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1046,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1053,22): warning C4018: '<': signed/unsigned mismatch
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1086,23): warning C4018: '<': signed/unsigned mismatch
-C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1093,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\octav\Desktop\CWare-main\base\features\lagcompensation.cpp(67,27): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\lagcompensation.cpp(424,19): warning C4101: 'backup_layers': unreferenced local variable
+C:\Users\octav\Desktop\CWare-main\base\features\antiaim.cpp(288,23): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\antiaim.cpp(291,24): warning C4244: '+=': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\legitbot.cpp(72,16): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\legitbot.cpp(73,14): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\legitbot.cpp(182,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\legitbot.cpp(183,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(81,15): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(82,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(332,21): warning C4018: '<': signed/unsigned mismatch
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(486,16): warning C4244: 'initializing': conversion from 'float' to 'int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(493,16): warning C4244: '+=': conversion from 'float' to 'int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(510,55): warning C4244: '=': conversion from 'float' to 'int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(512,52): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(626,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\ragebot.cpp(628,31): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\misc.cpp(366,85): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\misc.cpp(366,79): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\features\misc.cpp(366,33): warning C4244: 'argument': conversion from 'float' to 'const int', possible loss of data
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(673,83): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(674,82): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(1046,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(1053,22): warning C4018: '<': signed/unsigned mismatch
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(1086,23): warning C4018: '<': signed/unsigned mismatch
+C:\Users\octav\Desktop\CWare-main\base\core\menu.cpp(1093,22): warning C4018: '<': signed/unsigned mismatch
   buffer.c
   hde32.c
   hde64.c
@@ -72,6 +72,6 @@ C:\Users\octav\Desktop\CWare\base\core\menu.cpp(1093,22): warning C4018: '<': si
 LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
   Generating code
   Previous IPDB not found, fall back to full compilation.
-  All 9780 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 9677 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Finished generating code
-  cinnamon.vcxproj -> C:\Users\octav\Desktop\CWare\build\Release\base.dll
+  cinnamon.vcxproj -> C:\Users\octav\Desktop\CWare-main\build\Release\base.dll

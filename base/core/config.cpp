@@ -10,18 +10,10 @@
 bool C::Setup(std::string_view szDefaultFileName)
 {
 	// create directory "settings" in "%userprofile%\documents\.qo0" if it incorrect or doesnt exists
-	
 	if (!std::filesystem::is_directory(fsPath))
 	{
 		std::filesystem::remove(fsPath);
 		if (!std::filesystem::create_directories(fsPath))
-			return false;
-	}
-
-	if (!std::filesystem::is_directory(GetWorkingPath().append(XorStr("Scripts"))))
-	{
-		std::filesystem::remove(GetWorkingPath().append(XorStr("Scripts")));
-		if (!std::filesystem::create_directories(GetWorkingPath().append(XorStr("Scripts"))))
 			return false;
 	}
 
@@ -318,6 +310,7 @@ bool C::Load(std::string_view szFileName)
 	L::Print(XorStr("loaded configuration at: {}"), szFile);
 	return true;
 }
+
 void C::Remove(const std::size_t nIndex)
 {
 	const std::string& szFileName = vecFileNames.at(nIndex);
@@ -341,14 +334,14 @@ void C::Refresh()
 	vecFileNames.clear();
 
 	for (const auto& it : std::filesystem::directory_iterator(fsPath))
-    {
+	{
 		if (it.path().filename().extension() == XorStr(".ctwr"))
 		{
 			L::Print(XorStr("found configuration file: {}"), it.path().filename().string());
+			vecFileNames.push_back(it.path().filename().string());
 		}
-    }
+	}
 }
-
 
 std::size_t C::GetVariableIndex(const FNV1A_t uNameHash)
 {

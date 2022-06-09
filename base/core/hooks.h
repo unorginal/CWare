@@ -19,7 +19,6 @@ namespace VTABLE
 {
 	enum
 	{
-		/* directx table */
 		RESET = 16,
 		ENDSCENE = 42,
 		RESETEX = 132,

@@ -43,6 +43,9 @@ void CMiscellaneous::Run(CUserCmd* pCmd, CBaseEntity* pLocal, bool& bSendPacket)
 		}
 	}
 
+	if (C::Get<bool>(Vars.bMiscDoDomToretto))
+		DomToretto();
+
 	if (C::Get<bool>(Vars.bMiscRevealRanks) && pCmd->iButtons & IN_SCORE)
 		I::Client->DispatchUserMessage(CS_UM_ServerRankRevealAll, 0U, 0, nullptr);
 }
