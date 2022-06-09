@@ -597,12 +597,8 @@ void T::LegitBot()
 	ImGui::Columns(2, nullptr, false);
 	{
 		ImGui::Spacing();
-		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(2.0f, 2.0f));
 		ImGui::BeginChild(XorStr("Aimbot"), ImVec2(), true, ImGuiWindowFlags_None);
 		{
-			///ImGui::PopFont();
-			//ImGui::PushFont(F::ArialBold);
-			//ImGui::Text("aimbot");
 			ImGui::PopFont();
 			ImGui::PushFont(F::Tahoma);
 			ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(style.FramePadding.x, -1));
@@ -627,7 +623,6 @@ void T::LegitBot()
 
 			ImGui::EndChild();
 		}
-		ImGui::PopStyleVar();
 	}
 	ImGui::NextColumn();
 	{
